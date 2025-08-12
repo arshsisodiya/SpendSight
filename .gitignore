@@ -1,0 +1,56 @@
+# Node.js dependencies
+client\node_modules
+client\public
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+dist/
+build/
+
+# Local environment files
+.env
+.env.local
+.env.*.local
+
+# Server-specific files to ignore
+server\node_modules
+server/uploads/
+server/output.txt
+server/transactions.csv
+
+# IDE and editor configs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS-generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs
+*.log
+server/logs/
+
+# Coverage / test outputs
+coverage/
+
+# Misc
+*.tmp
+*.bak
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
