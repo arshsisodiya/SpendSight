@@ -8,13 +8,15 @@ export default function PdfUpload({ onUploadComplete }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [dragOver, setDragOver] = useState(false);
-  const fileInputRef = useRef(null); // Ref to trigger file picker
+  const [errorMsg, setErrorMsg] = useState("");
+  const fileInputRef = useRef(null);
 
   const handleUpload = async () => {
     if (!file) {
-      alert("Choose a PDF first.");
+      setErrorMsg("Please select a PDF or TXT file before uploading.");
       return;
     }
+    setErrorMsg(""); // clear error if file exists
 
     const formData = new FormData();
     formData.append("pdf", file);
@@ -48,7 +50,7 @@ export default function PdfUpload({ onUploadComplete }) {
 
       onUploadComplete(normalized, format);
     } catch (err) {
-      alert("Failed to upload/process PDF. See console for details.");
+      setErrorMsg("Failed to upload/process file. Check console for details.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -60,6 +62,20 @@ export default function PdfUpload({ onUploadComplete }) {
     setDragOver(false);
     if (e.dataTransfer.files.length > 0) {
       setFile(e.dataTransfer.files[0]);
+      setErrorMsg("");
+    }
+  };
+
+  const handleFileChange = (file) => {
+    setFile(file);
+    setErrorMsg("");
+  };
+
+  const handleReset = () => {
+    setFile(null);
+    setErrorMsg("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""; // clear actual input
     }
   };
 
@@ -72,7 +88,7 @@ export default function PdfUpload({ onUploadComplete }) {
     >
       <div
         className={`upload-box ${dragOver ? "drag-over" : ""}`}
-        onClick={() => fileInputRef.current.click()} // Trigger click
+        onClick={() => fileInputRef.current.click()}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -89,17 +105,19 @@ export default function PdfUpload({ onUploadComplete }) {
           id="pdf-file"
           type="file"
           accept="application/pdf,.txt"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={(e) => handleFileChange(e.target.files[0])}
           className="file-input-hidden"
         />
       </div>
+
+      {errorMsg && <p className="error-message">{errorMsg}</p>}
 
       <div className="buttons-group">
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={handleUpload}
-          disabled={!file || loading}
+          disabled={loading}
           className="btn-primary"
         >
           {loading ? "Processing..." : "Upload & Parse PDF"}
@@ -108,10 +126,7 @@ export default function PdfUpload({ onUploadComplete }) {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            setFile(null);
-            onUploadComplete([], "unknown");
-          }}
+          onClick={handleReset}
           className="btn-secondary"
         >
           <RefreshCcw size={16} />
