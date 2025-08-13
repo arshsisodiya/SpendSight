@@ -90,7 +90,7 @@ bank-analyzer/
 
    ```bash
    cd ../server
-   node server.js
+   node index.js
    ```
 
 5. **Run the frontend React app**
