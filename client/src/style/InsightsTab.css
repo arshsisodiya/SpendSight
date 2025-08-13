@@ -66,3 +66,71 @@
     height: 260px;
   }
 }
+/* Wrapper for dropdowns */
+.insights-control {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+
+/* Base dropdown style */
+.dropdown {
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: #ffffff;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.dropdown-option {
+  color: #000; /* Options should stay black so they're readable */
+}
+
+/* Color themes for dropdowns */
+.dropdown-purple {
+  background: linear-gradient(90deg, #0642a3, #065de8);
+}
+
+.dropdown-pink {
+  background: linear-gradient(90deg, #0642a3, #065de8);
+}
+
+/* Hover effect for dropdowns */
+.dropdown:hover {
+  opacity: 0.85;
+}
+
+/* Recurring Payments button base */
+.toggle-btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.toggle-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Button colors */
+.toggle-btn-green {
+  background: linear-gradient(90deg, #0642a3, #065de8);
+}
+
+.toggle-btn-red {
+  background: linear-gradient(90deg, #0642a3, #065de8);
+}
+
+/* Insights header alignment */
+.insights-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

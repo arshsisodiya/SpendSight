@@ -314,51 +314,50 @@ export default function InsightsTab({ transactions = [] }) {
         </div>
       </div>
 
-      {/* Spending Trend */}
-      <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-          <select
-            value={trendView}
-            onChange={(e) => setTrendView(e.target.value)}
-            style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid #ccc" }}
-          >
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-        <Line data={spendingTrend} options={lineOptions} />
-      </div>
+ <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
+   <div className="insights-control">
+    <select
+      value={trendView}
+      onChange={(e) => setTrendView(e.target.value)}
+      className="dropdown dropdown-purple"
+    >
+      <option value="daily" className="dropdown-option">Daily</option>
+      <option value="weekly" className="dropdown-option">Weekly</option>
+      <option value="monthly" className="dropdown-option">Monthly</option>
+    </select>
+  </div>
+  <Line data={spendingTrend} options={lineOptions} />
+</div>
 
       {/* Spending Heatmap */}
-      <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
-        <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 8 }}>
-          <select
-            value={heatmapView}
-            onChange={(e) => setHeatmapView(e.target.value)}
-            style={{ padding: "6px 10px", borderRadius: "8px", border: "1px solid #ccc" }}
-          >
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-        <Bar type="matrix" data={heatmapChart} options={heatmapOptions} />
-      </div>
+<div className="insights-card" style={{ marginTop: 20, height: 340 }}>
+  <div className="insights-control">
+    <select
+      value={heatmapView}
+      onChange={(e) => setHeatmapView(e.target.value)}
+      className="dropdown dropdown-pink"
+    >
+      <option value="daily" className="dropdown-option">Daily</option>
+      <option value="weekly" className="dropdown-option">Weekly</option>
+      <option value="monthly" className="dropdown-option">Monthly</option>
+    </select>
+  </div>
+  <Bar type="matrix" data={heatmapChart} options={heatmapOptions} />
+</div>
 
       {/* Recurring Payments Table */}
       <div className="insights-card" style={{ marginTop: 20 }}>
-        <div className="insights-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h4>Recurring Payments</h4>
-          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-            {recurringPayments.length > 10 && (
-              <button
-                onClick={() => setShowAllRecurring(!showAllRecurring)}
-                style={{ padding: "6px 10px", borderRadius: 6, border: "1px solid #ccc", cursor: "pointer", background: "#fff" }}
-              >
-                {showAllRecurring ? "Show Less" : `Show All (${recurringPayments.length})`}
-              </button>
-            )}
+  <div className="insights-header">
+    <h4>Recurring Payments</h4>
+    <div>
+      {recurringPayments.length > 10 && (
+        <button
+          onClick={() => setShowAllRecurring(!showAllRecurring)}
+          className={`toggle-btn ${showAllRecurring ? "toggle-btn-red" : "toggle-btn-green"}`}
+        >
+          {showAllRecurring ? "Show Less" : `Show All (${recurringPayments.length})`}
+        </button>
+      )}
           </div>
         </div>
 
@@ -366,7 +365,7 @@ export default function InsightsTab({ transactions = [] }) {
           <div style={{ overflowX: "auto", marginTop: 8 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
               <thead>
-                <tr style={{ textAlign: "left", borderBottom: "2px solid #ddd" }}>
+                <tr style={{ textAlign: "left", borderBottom: "2px solid #12d72fff" }}>
                   <th style={{ padding: 8 }}>Details</th>
                   <th style={{ padding: 8 }}>Amount (₹)</th>
                   <th
