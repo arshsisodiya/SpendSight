@@ -1,5 +1,13 @@
 import React, { useMemo } from "react";
 
+// Helper to remove "Paid to" or "Received from" prefixes
+function sanitizeDetails(details) {
+  if (!details) return "Unknown";
+  let d = details.toString().trim();
+  d = d.replace(/^Paid to\s*/i, "").replace(/^Received from\s*/i, "");
+  return d || "Unknown";
+}
+
 export default function SummaryTab({ transactions = [] }) {
   const summary = useMemo(() => {
     if (!transactions.length) return null;
@@ -22,12 +30,12 @@ export default function SummaryTab({ transactions = [] }) {
           debitByDate[dateStr] = (debitByDate[dateStr] || 0) + amt;
           debitByHour[hour] = (debitByHour[hour] || 0) + amt;
 
-          const user = t.Details || "Unknown";
+          const user = sanitizeDetails(t.Details);
           debitByUser[user] = (debitByUser[user] || 0) + amt;
         }
 
         if (type === "CREDIT") {
-          const user = t.Details || "Unknown";
+          const user = sanitizeDetails(t.Details);
           creditByUser[user] = (creditByUser[user] || 0) + amt;
         }
       }

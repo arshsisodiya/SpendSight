@@ -16,7 +16,7 @@ import {
 import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
 import "chartjs-adapter-date-fns";
 import { parseISO, startOfWeek, format, getDay } from "date-fns";
-import "./style/InsightsTab.css"; // Assuming you have a CSS file for styling
+import "./style/InsightsTab.css";
 
 ChartJS.register(
   ArcElement,
@@ -46,6 +46,16 @@ const DEFAULT_COLORS = [
   "#f68d8d",
 ];
 
+// Helper to remove "Paid to" / "Received from" prefixes
+const sanitizeDetails = (details) => {
+  if (!details) return "";
+  return details
+    .toString()
+    .replace(/^Paid to\s*/i, "")
+    .replace(/^Received from\s*/i, "")
+    .trim();
+};
+
 function aggregateTopN(transactions, txnType, topN = 8) {
   const map = {};
   transactions.forEach((t) => {
@@ -56,7 +66,7 @@ function aggregateTopN(transactions, txnType, topN = 8) {
     if (txnType === "CREDIT" && type !== "CREDIT") return;
 
     const key =
-      (t.Details && t.Details.toString().trim()) ||
+      sanitizeDetails(t.Details) ||
       (t.Account && t.Account.toString().trim()) ||
       "Unknown";
     map[key] = (map[key] || 0) + amt;
@@ -150,7 +160,7 @@ function aggregateRecurring(transactions) {
     const amt = Number(t.Amount || 0);
     const type = (t.Type || "").toUpperCase();
     if (type !== "DEBIT" || !amt) return;
-    const user = (t.Details && t.Details.toString().trim()) || "Unknown";
+    const user = sanitizeDetails(t.Details) || "Unknown";
     const key = `${user}||${Number(amt).toFixed(2)}`;
     recurringMap[key] = recurringMap[key] || { user, amount: Number(amt), dates: [] };
     recurringMap[key].dates.push(t.Date ? new Date(t.Date) : null);
@@ -251,13 +261,7 @@ export default function InsightsTab({ transactions = [] }) {
     );
   }
 
-  const pieOptions = {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: { position: "bottom" },
-    },
-  };
+  const pieOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } };
   const barOptions = { responsive: true, maintainAspectRatio: false };
   const lineOptions = { responsive: true, maintainAspectRatio: false };
 
@@ -314,50 +318,50 @@ export default function InsightsTab({ transactions = [] }) {
         </div>
       </div>
 
- <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
-   <div className="insights-control">
-    <select
-      value={trendView}
-      onChange={(e) => setTrendView(e.target.value)}
-      className="dropdown dropdown-purple"
-    >
-      <option value="daily" className="dropdown-option">Daily</option>
-      <option value="weekly" className="dropdown-option">Weekly</option>
-      <option value="monthly" className="dropdown-option">Monthly</option>
-    </select>
-  </div>
-  <Line data={spendingTrend} options={lineOptions} />
-</div>
+      <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
+        <div className="insights-control">
+          <select
+            value={trendView}
+            onChange={(e) => setTrendView(e.target.value)}
+            className="dropdown dropdown-purple"
+          >
+            <option value="daily" className="dropdown-option">Daily</option>
+            <option value="weekly" className="dropdown-option">Weekly</option>
+            <option value="monthly" className="dropdown-option">Monthly</option>
+          </select>
+        </div>
+        <Line data={spendingTrend} options={lineOptions} />
+      </div>
 
       {/* Spending Heatmap */}
-<div className="insights-card" style={{ marginTop: 20, height: 340 }}>
-  <div className="insights-control">
-    <select
-      value={heatmapView}
-      onChange={(e) => setHeatmapView(e.target.value)}
-      className="dropdown dropdown-pink"
-    >
-      <option value="daily" className="dropdown-option">Daily</option>
-      <option value="weekly" className="dropdown-option">Weekly</option>
-      <option value="monthly" className="dropdown-option">Monthly</option>
-    </select>
-  </div>
-  <Bar type="matrix" data={heatmapChart} options={heatmapOptions} />
-</div>
+      <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
+        <div className="insights-control">
+          <select
+            value={heatmapView}
+            onChange={(e) => setHeatmapView(e.target.value)}
+            className="dropdown dropdown-pink"
+          >
+            <option value="daily" className="dropdown-option">Daily</option>
+            <option value="weekly" className="dropdown-option">Weekly</option>
+            <option value="monthly" className="dropdown-option">Monthly</option>
+          </select>
+        </div>
+        <Bar type="matrix" data={heatmapChart} options={heatmapOptions} />
+      </div>
 
       {/* Recurring Payments Table */}
       <div className="insights-card" style={{ marginTop: 20 }}>
-  <div className="insights-header">
-    <h4>Recurring Payments</h4>
-    <div>
-      {recurringPayments.length > 10 && (
-        <button
-          onClick={() => setShowAllRecurring(!showAllRecurring)}
-          className={`toggle-btn ${showAllRecurring ? "toggle-btn-red" : "toggle-btn-green"}`}
-        >
-          {showAllRecurring ? "Show Less" : `Show All (${recurringPayments.length})`}
-        </button>
-      )}
+        <div className="insights-header">
+          <h4>Recurring Payments</h4>
+          <div>
+            {recurringPayments.length > 10 && (
+              <button
+                onClick={() => setShowAllRecurring(!showAllRecurring)}
+                className={`toggle-btn ${showAllRecurring ? "toggle-btn-red" : "toggle-btn-green"}`}
+              >
+                {showAllRecurring ? "Show Less" : `Show All (${recurringPayments.length})`}
+              </button>
+            )}
           </div>
         </div>
 
@@ -400,4 +404,3 @@ export default function InsightsTab({ transactions = [] }) {
     </div>
   );
 }
-  

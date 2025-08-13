@@ -16,6 +16,14 @@ export default function TransactionsTable({ transactions = [], bankFormat = "unk
     setCurrentPage(1);
   }, [search, typeFilter, startDate, endDate, sortConfig]);
 
+  const sanitizeDetails = (details) => {
+    if (!details) return "";
+    return details
+      .replace(/^Paid to\s*/i, "")
+      .replace(/^Received from\s*/i, "")
+      .trim();
+  };
+
   const processed = useMemo(() => {
     let items = transactions.slice();
 
@@ -128,7 +136,7 @@ export default function TransactionsTable({ transactions = [], bankFormat = "unk
     const headers = ["Date", "Details", "Type", "Amount", "Transaction ID", "UTR", "Account"];
     const rows = processed.map(t => [
       formatDateCell(t),
-      `"${(t.Details || "").replace(/"/g, '""')}"`,
+      `"${sanitizeDetails(t.Details || "")}"`,
       t.Type || "",
       t.Amount || "",
       t.TransactionID || "",
@@ -215,7 +223,7 @@ export default function TransactionsTable({ transactions = [], bankFormat = "unk
               <tr key={idx}>
                 <td>{formatDateCell(t)}</td>
                 {bankFormat !== "sbi" && <td>{t.Date ? new Date(t.Date).toLocaleTimeString() : ""}</td>}
-                <td>{t.Details}</td>
+                <td>{sanitizeDetails(t.Details)}</td>
                 <td>{t.Type}</td>
                 <td className="amount-cell">₹{Number(t.Amount || 0).toFixed(2)}</td>
                 <td>{t.TransactionID || ""}</td>
