@@ -1,9 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import axios from "axios";
+import { motion } from "framer-motion";
+import { CloudUpload, RefreshCcw } from "lucide-react";
+import "./style/PdfUpload.css";
 
 export default function PdfUpload({ onUploadComplete }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileInputRef = useRef(null); // Ref to trigger file picker
 
   const handleUpload = async () => {
     if (!file) {
@@ -33,9 +38,10 @@ export default function PdfUpload({ onUploadComplete }) {
             dateObj = null;
           }
         }
-        const amount = typeof t.Amount === "number"
-          ? t.Amount
-          : parseFloat(String(t.Amount || "0").replace(/[^0-9.-]+/g, "")) || 0;
+        const amount =
+          typeof t.Amount === "number"
+            ? t.Amount
+            : parseFloat(String(t.Amount || "0").replace(/[^0-9.-]+/g, "")) || 0;
 
         return { ...t, Date: dateObj, Amount: amount };
       });
@@ -49,33 +55,69 @@ export default function PdfUpload({ onUploadComplete }) {
     }
   };
 
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setDragOver(false);
+    if (e.dataTransfer.files.length > 0) {
+      setFile(e.dataTransfer.files[0]);
+    }
+  };
+
   return (
-    <div className="pdf-upload-container">
-      <input
-        id="pdf-file"
-        type="file"
-        accept="application/pdf,.txt"
-        onChange={(e) => setFile(e.target.files[0])}
-        className="file-input"
-      />
+    <motion.div
+      className="pdf-upload-container"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      <div
+        className={`upload-box ${dragOver ? "drag-over" : ""}`}
+        onClick={() => fileInputRef.current.click()} // Trigger click
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragOver(true);
+        }}
+        onDragLeave={() => setDragOver(false)}
+        onDrop={handleDrop}
+      >
+        <CloudUpload size={50} className="upload-icon" />
+        <p className="upload-text">
+          {file ? file.name : "Click or drag & drop your bank statement here"}
+        </p>
+        <input
+          ref={fileInputRef}
+          id="pdf-file"
+          type="file"
+          accept="application/pdf,.txt"
+          onChange={(e) => setFile(e.target.files[0])}
+          className="file-input-hidden"
+        />
+      </div>
+
       <div className="buttons-group">
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={handleUpload}
           disabled={!file || loading}
           className="btn-primary"
         >
           {loading ? "Processing..." : "Upload & Parse PDF"}
-        </button>
-        <button
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => {
             setFile(null);
             onUploadComplete([], "unknown");
           }}
           className="btn-secondary"
         >
+          <RefreshCcw size={16} />
           Reset
-        </button>
+        </motion.button>
       </div>
-    </div>
+    </motion.div>
   );
 }

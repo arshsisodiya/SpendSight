@@ -16,6 +16,7 @@ import {
 import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
 import "chartjs-adapter-date-fns";
 import { parseISO, startOfWeek, format, getDay } from "date-fns";
+import "./style/InsightsTab.css"; // Assuming you have a CSS file for styling
 
 ChartJS.register(
   ArcElement,

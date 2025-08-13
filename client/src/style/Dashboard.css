@@ -1,0 +1,117 @@
+/* ===== Dashboard ===== */
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.totals {
+  display: flex;
+  gap: 20px;
+  font-size: 14px;
+}
+
+.totals .spent {
+  color: #d9534f;
+}
+
+.totals .received {
+  color: #5cb85c;
+}
+
+.download-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #6c08cf;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+/* ===== Filters ===== */
+.filters-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.filter-input,
+.filter-select,
+.filter-datepicker {
+  padding: 6px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+.pagination-info {
+  font-size: 12px;
+  margin-left: auto;
+}
+
+/* ===== Transactions Table ===== */
+.transactions-table-wrapper {
+  padding: 16px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 6px 18px rgba(20,20,40,0.04);
+  overflow-x: auto;
+}
+
+.transactions-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 700px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.transactions-table th,
+.transactions-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f0f0f0;
+  text-align: left;
+}
+
+.transactions-table th {
+  background-color: #fafbfc;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #555;
+  cursor: pointer;
+}
+
+.transactions-table tr:hover {
+  background-color: #f9f9f9;
+}
+
+.amount-cell {
+  text-align: right;
+}
+
+/* ===== Pagination ===== */
+.pagination-controls {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: #fff;
+  cursor: pointer;
+}
+
+.page-btn.active {
+  border: 2px solid #2563eb;
+  background: #2563eb;
+  color: #fff;
+  font-weight: bold;
+}

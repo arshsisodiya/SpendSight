@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import "./App.css"; // Ensure the CSS is imported
+import "./style/TransactionTable.css"; // Assuming you have a CSS file for styling
 
 export default function TransactionsTable({ transactions = [], bankFormat = "unknown" }) {
   const [search, setSearch] = useState("");
