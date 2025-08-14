@@ -286,23 +286,24 @@ export default function InsightsTab({ transactions = [] }) {
     },
   };
 
-  const heatmapChart = {
-    labels: [],
-    datasets: [
-      {
-        label: "Spending Heatmap",
-        data: heatmapData,
-        backgroundColor: (ctx) => {
-          const value = ctx.dataset.data[ctx.dataIndex].v;
-          const max = Math.max(...heatmapData.map((d) => d.v));
-          const intensity = value / max;
-          return `rgba(255, 99, 132, ${intensity})`;
-        },
-        width: () => 20,
-        height: () => 20,
+const heatmapChart = {
+  labels: [],
+  datasets: [
+    {
+      label: "Spending Heatmap",
+      data: heatmapData,
+      backgroundColor: (ctx) => {
+        const dataPoint = ctx.dataset.data[ctx.dataIndex];
+        if (!dataPoint || !dataPoint.v) return "rgba(200,200,200,0.2)"; // fallback color
+        const max = Math.max(...heatmapData.map((d) => d.v));
+        const intensity = max ? dataPoint.v / max : 0;
+        return `rgba(255, 99, 132, ${intensity})`;
       },
-    ],
-  };
+      width: () => 20,
+      height: () => 20,
+    },
+  ],
+};
 
   return (
     <div style={{ background: "#fff", padding: 20, borderRadius: 12 }}>
