@@ -6,7 +6,6 @@ const fs = require('fs');
 const path = require('path');
 const { Parser } = require('json2csv');
 
-const { parseSBIStatement } = require('./parsers/sbiParser');
 const { parsePhonePeFormat1 } = require('./parsers/phonepeParser');
 
 const app = express();
@@ -27,16 +26,12 @@ function detectFormat(text) {
     return 'unknown';
   }
   const lower = text.toLowerCase();
-  if (lower.includes('state bank of india') || lower.includes('sbin') || (lower.includes('ifs code') && lower.includes('debit') && lower.includes('credit'))) {
-    console.log('detectFormat: Detected SBI format');
-    return 'sbi';
-  }
   if (lower.includes('transaction id') || lower.includes('paid to') || lower.includes('received from') || lower.includes('payment to')) {
     console.log('detectFormat: Detected PhonePe format');
     return 'phonepe';
   }
-  console.log('detectFormat: Format unknown, will try fallback parsers');
-  return 'unknown';
+  console.log('detectFormat: Format unknown, defaulting to PhonePe parser');
+  return 'phonepe';
 }
 
 app.post('/upload', upload.single('pdf'), async (req, res) => {
@@ -56,31 +51,15 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
     fs.writeFileSync(txtPath, data.text);
     console.log(`Raw extracted text saved to ${txtPath}`);
 
-    // Detect format & parse
-    const format = detectFormat(data.text);
-    let transactions = [];
-
-    if (format === 'sbi') {
-      console.log('Parsing using SBI parser');
-      transactions = parseSBIStatement(data.text);
-    } else if (format === 'phonepe') {
-      console.log('Parsing using PhonePe parser');
-      transactions = parsePhonePeFormat1(data.text);
-    } else {
-      console.log('Trying fallback parsers (PhonePe first, then SBI)');
-      transactions = parsePhonePeFormat1(data.text);
-      if (!transactions || transactions.length === 0) {
-        transactions = parseSBIStatement(data.text);
-      }
-    }
-
+    // Parse using PhonePe parser
+    const transactions = parsePhonePeFormat1(data.text);
     if (!transactions || transactions.length === 0) {
       console.warn('No transactions extracted from PDF');
       return res.status(400).json({ error: 'No transactions found in PDF' });
     }
 
     // Normalize transactions
-    transactions = transactions.map(t => ({
+    const normalized = transactions.map(t => ({
       Date: t.Date || null,
       Type: t.Type || null,
       Amount: typeof t.Amount === 'number' ? t.Amount : (t.Amount ? Number(t.Amount) : 0),
@@ -91,11 +70,11 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
       Balance: t.Balance || null,
       Raw: t.Raw || ''
     }));
-    console.log(`Extracted ${transactions.length} transactions`);
+    console.log(`Extracted ${normalized.length} transactions`);
 
     // Convert to CSV
     const parser = new Parser();
-    const csv = parser.parse(transactions);
+    const csv = parser.parse(normalized);
     const csvPath = path.join(__dirname, 'transactions.csv');
     fs.writeFileSync(csvPath, csv);
     console.log(`CSV file saved at ${csvPath}`);
@@ -110,8 +89,8 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
 
     res.json({
       message: 'PDF processed & transactions extracted',
-      format,
-      transactions
+      format: 'phonepe',
+      transactions: normalized
     });
   } catch (err) {
     console.error('Error processing PDF:', err);

@@ -3,7 +3,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./style/TransactionTable.css"; // CSS for styling
 
-export default function TransactionsTable({ transactions = [], bankFormat = "unknown" }) {
+export default function TransactionsTable({ transactions = [] }) {
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("ALL");
   const [startDate, setStartDate] = useState(null);
@@ -226,7 +226,7 @@ export default function TransactionsTable({ transactions = [], bankFormat = "unk
           <thead>
             <tr>
               <th onClick={() => requestSort("Date")}>Date {sortIndicator(sortConfig, "Date")}</th>
-              {bankFormat !== "sbi" && <th>Time</th>}
+              <th>Time</th>
               <th>Details</th>
               <th onClick={() => requestSort("Type")}>Type {sortIndicator(sortConfig, "Type")}</th>
               <th onClick={() => requestSort("Amount")}>Amount {sortIndicator(sortConfig, "Amount")}</th>
@@ -239,7 +239,7 @@ export default function TransactionsTable({ transactions = [], bankFormat = "unk
             {paginatedItems.map((t, idx) => (
               <tr key={idx}>
                 <td>{formatDateCell(t)}</td>
-                {bankFormat !== "sbi" && <td>{formatTimeCell(t)}</td>}
+                <td>{formatTimeCell(t)}</td>
                 <td>{sanitizeDetails(t.Details)}</td>
                 <td>{t.Type}</td>
                 <td className="amount-cell">₹{Number(t.Amount || 0).toFixed(2)}</td>
