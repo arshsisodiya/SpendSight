@@ -15,7 +15,9 @@ import {
 } from "chart.js";
 import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
 import "chartjs-adapter-date-fns";
-import { parseISO, startOfWeek, format, getDay } from "date-fns";
+import { parseISO, startOfWeek, format, getDay, isAfter, isBefore } from "date-fns";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import "./style/InsightsTab.css";
 
 ChartJS.register(
@@ -183,10 +185,29 @@ export default function InsightsTab({ transactions = [] }) {
   const [showAllRecurring, setShowAllRecurring] = useState(false);
   const [countSortDir, setCountSortDir] = useState("desc");
 
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+
+  const handleResetDates = () => {
+    setStartDate(null);
+    setEndDate(null);
+  };
+
+  const filteredTransactions = useMemo(() => {
+    if (!startDate && !endDate) return transactions;
+    return transactions.filter((t) => {
+      let txnDate = t.Date instanceof Date ? t.Date : parseISO(t.Date);
+      if (isNaN(txnDate)) return false;
+      if (startDate && isBefore(txnDate, startDate)) return false;
+      if (endDate && isAfter(txnDate, endDate)) return false;
+      return true;
+    });
+  }, [transactions, startDate, endDate]);
+
   const { debitChart, creditChart, spendingTrend, recurringPayments, heatmapData } =
     useMemo(() => {
-      const debitAgg = aggregateTopN(transactions, "DEBIT", 8);
-      const creditAgg = aggregateTopN(transactions, "CREDIT", 8);
+      const debitAgg = aggregateTopN(filteredTransactions, "DEBIT", 8);
+      const creditAgg = aggregateTopN(filteredTransactions, "CREDIT", 8);
       const spendingAgg = aggregateSpending(transactions, trendView);
       const recurringAgg = aggregateRecurring(transactions);
       const heatmapAgg = aggregateHeatmap(transactions, heatmapView);
@@ -198,43 +219,29 @@ export default function InsightsTab({ transactions = [] }) {
       return {
         debitChart: {
           labels: debitAgg.labels,
-          datasets: [
-            {
-              data: debitAgg.data,
-              backgroundColor: debitColors,
-              borderWidth: 0,
-            },
-          ],
+          datasets: [{ data: debitAgg.data, backgroundColor: debitColors, borderWidth: 0 }],
         },
         creditChart: {
           labels: creditAgg.labels,
-          datasets: [
-            {
-              label: "Amount (₹)",
-              data: creditAgg.data,
-              backgroundColor: DEFAULT_COLORS[1],
-            },
-          ],
+          datasets: [{ label: "Amount (₹)", data: creditAgg.data, backgroundColor: DEFAULT_COLORS[1] }],
         },
         spendingTrend: {
           labels: spendingAgg.labels,
-          datasets: [
-            {
-              label: "Spending (₹)",
-              data: spendingAgg.data,
-              fill: false,
-              borderColor: "#ff6384",
-              backgroundColor: "#ff6384",
-              tension: 0.3,
-              pointRadius: 4,
-              pointHoverRadius: 6,
-            },
-          ],
+          datasets: [{
+            label: "Spending (₹)",
+            data: spendingAgg.data,
+            fill: false,
+            borderColor: "#ff6384",
+            backgroundColor: "#ff6384",
+            tension: 0.3,
+            pointRadius: 4,
+            pointHoverRadius: 6,
+          }],
         },
         recurringPayments: recurringAgg,
         heatmapData: heatmapAgg,
       };
-    }, [transactions, trendView, heatmapView]);
+    }, [filteredTransactions, transactions, trendView, heatmapView]);
 
   const sortedRecurring = useMemo(() => {
     if (!recurringPayments || recurringPayments.length === 0) return [];
@@ -286,36 +293,81 @@ export default function InsightsTab({ transactions = [] }) {
     },
   };
 
-const heatmapChart = {
-  labels: [],
-  datasets: [
-    {
-      label: "Spending Heatmap",
-      data: heatmapData,
-      backgroundColor: (ctx) => {
-        const dataPoint = ctx.dataset.data[ctx.dataIndex];
-        if (!dataPoint || !dataPoint.v) return "rgba(200,200,200,0.2)"; // fallback color
-        const max = Math.max(...heatmapData.map((d) => d.v));
-        const intensity = max ? dataPoint.v / max : 0;
-        return `rgba(255, 99, 132, ${intensity})`;
+  const heatmapChart = {
+    labels: [],
+    datasets: [
+      {
+        label: "Spending Heatmap",
+        data: heatmapData,
+        backgroundColor: (ctx) => {
+          const dataPoint = ctx.dataset.data[ctx.dataIndex];
+          if (!dataPoint || !dataPoint.v) return "rgba(200,200,200,0.2)";
+          const max = Math.max(...heatmapData.map((d) => d.v));
+          const intensity = max ? dataPoint.v / max : 0;
+          return `rgba(255, 99, 132, ${intensity})`;
+        },
+        width: () => 20,
+        height: () => 20,
       },
-      width: () => 20,
-      height: () => 20,
-    },
-  ],
-};
+    ],
+  };
 
   return (
     <div style={{ background: "#fff", padding: 20, borderRadius: 12 }}>
       <h3>Data Insights & Visualization</h3>
 
+{/* Date Range Picker Row */}
+<div className="insights-date-row">
+  <div className="date-picker-wrapper">
+
+    {/* Start Date */}
+    <div className="datepicker-icon-wrapper">
+      <DatePicker
+        selected={startDate}
+        onChange={(date) => setStartDate(date)}
+        selectsStart
+        startDate={startDate}
+        endDate={endDate}
+        placeholderText="Start Date"
+        dateFormat="yyyy-MM-dd"
+        className="custom-datepicker"
+      />
+      <span className="calendar-icon">📅</span>
+    </div>
+
+    {/* End Date */}
+    <div className="datepicker-icon-wrapper">
+      <DatePicker
+        selected={endDate}
+        onChange={(date) => setEndDate(date)}
+        selectsEnd
+        startDate={startDate}
+        endDate={endDate}
+        placeholderText="End Date"
+        dateFormat="yyyy-MM-dd"
+        className="custom-datepicker"
+      />
+      <span className="calendar-icon">📅</span>
+    </div>
+
+    {/* Reset button only if a date is selected */}
+    {(startDate || endDate) && (
+      <button className="reset-btn" onClick={handleResetDates}>
+        Reset
+      </button>
+    )}
+  </div>
+</div>
+
+
+
       {/* Top Debit & Credit */}
       <div className="insights-grid">
         <div className="insights-card" style={{ height: 280 }}>
-          <Pie data={debitChart} options={pieOptions} />
+          <Pie data={debitChart} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }} />
         </div>
         <div className="insights-card" style={{ height: 280 }}>
-          <Bar data={creditChart} options={barOptions} />
+          <Bar data={creditChart} options={{ responsive: true, maintainAspectRatio: false }} />
         </div>
       </div>
 

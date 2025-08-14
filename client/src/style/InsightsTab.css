@@ -134,3 +134,78 @@
   justify-content: space-between;
   align-items: center;
 }
+
+/* Date range row aligned to right */
+.insights-date-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 15px;
+}
+
+.date-picker-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Sleek date picker design */
+.custom-datepicker {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background: #fafafa;
+  transition: border-color 0.2s ease;
+}
+
+.custom-datepicker:focus {
+  outline: none;
+  border-color: #6c63ff;
+}
+
+/* Reset button style */
+.reset-btn {
+  padding: 6px 12px;
+  background: #ff4d4f;
+  border: none;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.reset-btn:hover {
+  background: #d9363e;
+}
+.datepicker-icon-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none; /* so clicking still opens datepicker */
+  font-size: 14px;
+  color: #666;
+}
+
+.custom-datepicker {
+  padding: 6px 28px 6px 10px; /* extra space for icon */
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  color: #333;
+  background: #fafafa;
+  transition: border-color 0.2s ease;
+  width: 140px; /* fixed width for alignment */
+}
+
+.custom-datepicker:focus {
+  outline: none;
+  border-color: #6c63ff;
+}
