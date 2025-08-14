@@ -48,7 +48,6 @@ const DEFAULT_COLORS = [
   "#f68d8d",
 ];
 
-// Helper to remove "Paid to" / "Received from" prefixes
 const sanitizeDetails = (details) => {
   if (!details) return "";
   return details
@@ -95,7 +94,6 @@ function aggregateSpending(transactions, view = "daily") {
   transactions.forEach((t) => {
     const amt = Number(t.Amount || 0);
     if (!amt || isNaN(amt)) return;
-    if ((t.Type || "").toUpperCase() !== "DEBIT") return;
 
     let txnDate;
     if (t.Date instanceof Date) txnDate = t.Date;
@@ -123,7 +121,7 @@ function aggregateHeatmap(transactions, view = "weekly") {
   const heatmapData = {};
 
   transactions.forEach((t) => {
-    if ((t.Type || "").toUpperCase() !== "DEBIT") return;
+    const type = (t.Type || "").toUpperCase();
     const amt = Number(t.Amount || 0);
     if (!amt || isNaN(amt)) return;
 
@@ -137,18 +135,14 @@ function aggregateHeatmap(transactions, view = "weekly") {
 
     let weekKey = format(startOfWeek(txnDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
 
-    if (view === "monthly") {
-      weekKey = format(txnDate, "yyyy-MMM");
-    } else if (view === "daily") {
-      weekKey = format(txnDate, "yyyy-MMM-dd");
-    }
+    if (view === "monthly") weekKey = format(txnDate, "yyyy-MMM");
+    else if (view === "daily") weekKey = format(txnDate, "yyyy-MMM-dd");
 
-    const day = getDay(txnDate);
-    const key = `${weekKey}-${day}`;
+    const key = `${weekKey}-${getDay(txnDate)}`;
 
     heatmapData[key] = {
       x: weekKey,
-      y: day,
+      y: getDay(txnDate),
       v: (heatmapData[key]?.v || 0) + amt,
     };
   });
@@ -187,6 +181,7 @@ export default function InsightsTab({ transactions = [] }) {
 
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
+  const [chartMode, setChartMode] = useState("DEBIT");
 
   const handleResetDates = () => {
     setStartDate(null);
@@ -204,31 +199,30 @@ export default function InsightsTab({ transactions = [] }) {
     });
   }, [transactions, startDate, endDate]);
 
-  const { debitChart, creditChart, spendingTrend, recurringPayments, heatmapData } =
-    useMemo(() => {
-      const debitAgg = aggregateTopN(filteredTransactions, "DEBIT", 8);
-      const creditAgg = aggregateTopN(filteredTransactions, "CREDIT", 8);
-      const spendingAgg = aggregateSpending(transactions, trendView);
-      const recurringAgg = aggregateRecurring(transactions);
-      const heatmapAgg = aggregateHeatmap(transactions, heatmapView);
+  const { chartData, spendingTrend, recurringPayments, heatmapData } = useMemo(() => {
+    const agg = aggregateTopN(filteredTransactions, chartMode, 8);
+    const spendingAgg = aggregateSpending(
+      filteredTransactions.filter((t) => (t.Type || "").toUpperCase() === chartMode),
+      trendView
+    );
+    const recurringAgg = aggregateRecurring(filteredTransactions);
+    const heatmapAgg = aggregateHeatmap(
+      filteredTransactions.filter((t) => (t.Type || "").toUpperCase() === chartMode),
+      heatmapView
+    );
 
-      const debitColors = debitAgg.labels.map(
-        (_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]
-      );
+    const colors = agg.labels.map((_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]);
 
-      return {
-        debitChart: {
-          labels: debitAgg.labels,
-          datasets: [{ data: debitAgg.data, backgroundColor: debitColors, borderWidth: 0 }],
-        },
-        creditChart: {
-          labels: creditAgg.labels,
-          datasets: [{ label: "Amount (₹)", data: creditAgg.data, backgroundColor: DEFAULT_COLORS[1] }],
-        },
-        spendingTrend: {
-          labels: spendingAgg.labels,
-          datasets: [{
-            label: "Spending (₹)",
+    return {
+      chartData: {
+        pie: { labels: agg.labels, datasets: [{ data: agg.data, backgroundColor: colors, borderWidth: 0 }] },
+        bar: { labels: agg.labels, datasets: [{ label: "Amount (₹)",  data: agg.data, backgroundColor: colors.map(c => c + "aa"), borderRadius: 8  }] },
+      },
+      spendingTrend: {
+        labels: spendingAgg.labels,
+        datasets: [
+          {
+            label: `${chartMode} Spending (₹)`,
             data: spendingAgg.data,
             fill: false,
             borderColor: "#ff6384",
@@ -236,12 +230,13 @@ export default function InsightsTab({ transactions = [] }) {
             tension: 0.3,
             pointRadius: 4,
             pointHoverRadius: 6,
-          }],
-        },
-        recurringPayments: recurringAgg,
-        heatmapData: heatmapAgg,
-      };
-    }, [filteredTransactions, transactions, trendView, heatmapView]);
+          },
+        ],
+      },
+      recurringPayments: recurringAgg,
+      heatmapData: heatmapAgg,
+    };
+  }, [filteredTransactions, trendView, heatmapView, chartMode]);
 
   const sortedRecurring = useMemo(() => {
     if (!recurringPayments || recurringPayments.length === 0) return [];
@@ -256,9 +251,8 @@ export default function InsightsTab({ transactions = [] }) {
     ? sortedRecurring
     : sortedRecurring.slice(0, 10);
 
-  const toggleCountSort = () => {
-    setCountSortDir((prev) => (prev === "desc" ? "asc" : "desc"));
-  };
+  const toggleCountSort = () => setCountSortDir(prev => prev === "desc" ? "asc" : "desc");
+  const toggleChartMode = () => setChartMode(prev => prev === "DEBIT" ? "CREDIT" : "DEBIT");
 
   if (!transactions || transactions.length === 0) {
     return (
@@ -268,9 +262,9 @@ export default function InsightsTab({ transactions = [] }) {
     );
   }
 
-  const pieOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } };
-  const barOptions = { responsive: true, maintainAspectRatio: false };
-  const lineOptions = { responsive: true, maintainAspectRatio: false };
+  const pieOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" }, title: { display: true, text: `${chartMode} Top Payees` } } };
+  const barOptions = { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: `${chartMode} Top Payees` } } };
+  const lineOptions = { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: `${chartMode} Spending Trend (${trendView})` } } };
 
   const heatmapOptions = {
     responsive: true,
@@ -297,7 +291,7 @@ export default function InsightsTab({ transactions = [] }) {
     labels: [],
     datasets: [
       {
-        label: "Spending Heatmap",
+        label: `${chartMode} Heatmap`,
         data: heatmapData,
         backgroundColor: (ctx) => {
           const dataPoint = ctx.dataset.data[ctx.dataIndex];
@@ -316,61 +310,64 @@ export default function InsightsTab({ transactions = [] }) {
     <div style={{ background: "#fff", padding: 20, borderRadius: 12 }}>
       <h3>Data Insights & Visualization</h3>
 
-{/* Date Range Picker Row */}
-<div className="insights-date-row">
-  <div className="date-picker-wrapper">
-
-    {/* Start Date */}
-    <div className="datepicker-icon-wrapper">
-      <DatePicker
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
-        selectsStart
-        startDate={startDate}
-        endDate={endDate}
-        placeholderText="Start Date"
-        dateFormat="yyyy-MM-dd"
-        className="custom-datepicker"
-      />
-      <span className="calendar-icon">📅</span>
-    </div>
-
-    {/* End Date */}
-    <div className="datepicker-icon-wrapper">
-      <DatePicker
-        selected={endDate}
-        onChange={(date) => setEndDate(date)}
-        selectsEnd
-        startDate={startDate}
-        endDate={endDate}
-        placeholderText="End Date"
-        dateFormat="yyyy-MM-dd"
-        className="custom-datepicker"
-      />
-      <span className="calendar-icon">📅</span>
-    </div>
-
-    {/* Reset button only if a date is selected */}
-    {(startDate || endDate) && (
-      <button className="reset-btn" onClick={handleResetDates}>
-        Reset
-      </button>
-    )}
-  </div>
+{/* Toggle Debit/Credit - Single Button */}
+<div style={{ marginBottom: 12 }}>
+  <button
+    onClick={() => setChartMode(prev => prev === "DEBIT" ? "CREDIT" : "DEBIT")}
+    className={`toggle-btn active-mode`} // always active, visually shows current mode
+  >
+    {chartMode === "DEBIT" ? "Showing Debit" : "Showing Credit"}
+  </button>
 </div>
 
-
-
-      {/* Top Debit & Credit */}
-      <div className="insights-grid">
-        <div className="insights-card" style={{ height: 280 }}>
-          <Pie data={debitChart} options={{ responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" } } }} />
-        </div>
-        <div className="insights-card" style={{ height: 280 }}>
-          <Bar data={creditChart} options={{ responsive: true, maintainAspectRatio: false }} />
+      {/* Date Picker */}
+      <div className="insights-date-row">
+        <div className="date-picker-wrapper">
+          <div className="datepicker-icon-wrapper">
+            <DatePicker
+              selected={startDate}
+              onChange={(date) => setStartDate(date)}
+              selectsStart
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="Start Date"
+              dateFormat="yyyy-MM-dd"
+              className="custom-datepicker"
+            />
+            <span className="calendar-icon">📅</span>
+          </div>
+          <div className="datepicker-icon-wrapper">
+            <DatePicker
+              selected={endDate}
+              onChange={(date) => setEndDate(date)}
+              selectsEnd
+              startDate={startDate}
+              endDate={endDate}
+              placeholderText="End Date"
+              dateFormat="yyyy-MM-dd"
+              className="custom-datepicker"
+            />
+            <span className="calendar-icon">📅</span>
+          </div>
+          {(startDate || endDate) && (
+            <button className="reset-btn" onClick={handleResetDates}>
+              Reset
+            </button>
+          )}
         </div>
       </div>
 
+      {/* Top Charts */}
+      <div className="insights-grid">
+        <div className="insights-card" style={{ height: 280 }}>
+          <Pie data={chartData.pie} options={pieOptions} />
+        </div>
+        <div className="insights-card" style={{ height: 280 }}>
+          <Bar data={chartData.bar} options={barOptions} />
+        </div>
+      </div>
+
+      {/* Spending Trend */}
       <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
         <div className="insights-control">
           <select
@@ -378,15 +375,15 @@ export default function InsightsTab({ transactions = [] }) {
             onChange={(e) => setTrendView(e.target.value)}
             className="dropdown dropdown-purple"
           >
-            <option value="daily" className="dropdown-option">Daily</option>
-            <option value="weekly" className="dropdown-option">Weekly</option>
-            <option value="monthly" className="dropdown-option">Monthly</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
           </select>
         </div>
-        <Line data={spendingTrend} options={lineOptions} />
+        <Line data={spendingTrend} options={lineOptions}  />
       </div>
 
-      {/* Spending Heatmap */}
+      {/* Heatmap */}
       <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
         <div className="insights-control">
           <select
@@ -394,15 +391,15 @@ export default function InsightsTab({ transactions = [] }) {
             onChange={(e) => setHeatmapView(e.target.value)}
             className="dropdown dropdown-pink"
           >
-            <option value="daily" className="dropdown-option">Daily</option>
-            <option value="weekly" className="dropdown-option">Weekly</option>
-            <option value="monthly" className="dropdown-option">Monthly</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
           </select>
         </div>
         <Bar type="matrix" data={heatmapChart} options={heatmapOptions} />
       </div>
 
-      {/* Recurring Payments Table */}
+      {/* Recurring Payments */}
       <div className="insights-card" style={{ marginTop: 20 }}>
         <div className="insights-header">
           <h4>Recurring Payments</h4>
@@ -417,7 +414,6 @@ export default function InsightsTab({ transactions = [] }) {
             )}
           </div>
         </div>
-
         {recurringPayments.length ? (
           <div style={{ overflowX: "auto", marginTop: 8 }}>
             <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
