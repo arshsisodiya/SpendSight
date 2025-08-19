@@ -1,3 +1,13 @@
+/* ===== Theme Variables ===== */
+:root {
+  --color-primary: #0642a3;
+  --color-primary-dark: #065de8;
+  --color-debit: #e80606;
+  --color-credit: #28a745;
+  --color-light-bg: #fafafa;
+  --color-border: #ddd;
+}
+
 /* ===== Tabs ===== */
 .tab-buttons {
   display: flex;
@@ -8,9 +18,9 @@
 }
 
 .active-tab {
-  background: #007bff;
+  background: var(--color-primary);
   color: #fff;
-  border-color: #007bff;
+  border-color: var(--color-primary);
   box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
 }
 
@@ -24,6 +34,12 @@
   box-shadow: 0 8px 20px rgba(20, 20, 40, 0.05);
   color: #555;
   font-size: 1rem;
+}
+.empty-state::before {
+  content: "📊";
+  display: block;
+  font-size: 2rem;
+  margin-bottom: 8px;
 }
 
 /* ===== Insights Grid ===== */
@@ -42,8 +58,15 @@
 }
 
 .insights-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-3px);
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+}
+
+.insights-card h4 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 10px;
 }
 
 .insights-header {
@@ -56,17 +79,20 @@
   color: #222;
 }
 
-.insights-chart {
+.insights-chart,
+.chart-container {
   width: 100%;
-  height: 300px;
+  height: clamp(240px, 30vh, 360px);
   position: relative;
 }
 
+/* ===== Responsive Layout ===== */
 @media (max-width: 768px) {
   .insights-grid {
     grid-template-columns: 1fr;
   }
-  .insights-chart {
+  .insights-chart,
+  .chart-container {
     height: 260px;
   }
 }
@@ -79,30 +105,57 @@
   margin-bottom: 8px;
 }
 
-/* ===== Dropdowns ===== */
+/* ===== Dropdowns (robust cross-browser) ===== */
 .dropdown {
-  padding: 8px 14px;
+  display: inline-block;
+  min-width: 15px;
+  min-height: 36px;
+  padding: 8px 36px 8px 14px; /* room for arrow on the right */
   border-radius: 8px;
-  color: #ffffff;
   font-weight: 500;
   cursor: pointer;
   border: none;
-  transition: all 0.3s ease;
   outline: none;
+  line-height: 1.2;
+  transition: opacity 0.2s ease;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+
+  /* Two background layers:
+     1) SVG arrow (top layer)
+     2) Gradient (bottom layer) */
+  background-repeat: no-repeat, no-repeat;
+  background-position: right 12px center, 0 0;
+  background-size: 12px, 100% 100%;
 }
 
-.dropdown:hover {
-  opacity: 0.85;
+/* Gradient + white arrow for purple/pink variant */
+.dropdown.dropdown-pink{
+  color: #fff;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"),
+    linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
 }
 
-.dropdown-option {
-  color: #000; /* Options should stay black so they're readable */
+.dropdown:hover { opacity: 0.9; }
+
+.dropdown:focus {
+  box-shadow: 0 0 0 2px rgba(185, 87, 22, 0.25);
 }
 
-.dropdown-purple,
-.dropdown-pink {
-  background: linear-gradient(90deg, #0642a3, #065de8);
+/* Force the opened menu (options list) to white with black text */
+.dropdown option {
+  background-color: #ffffff;
+  color: #000000;
 }
+
+/* (Optional) a light variant if you ever need it on white cards */
+.dropdown--light {
+  color: #222;
+  border: 1px solid var(--color-border);
+}
+
 
 /* ===== Toggle Buttons ===== */
 .toggle-btn {
@@ -122,11 +175,11 @@
 }
 
 .toggle-btn.debit-mode {
-  background: linear-gradient(90deg, #a30606, #e80606);
+  background: linear-gradient(90deg, #a30606, var(--color-debit));
 }
 
 .toggle-btn.credit-mode {
-  background: linear-gradient(90deg, #0a8f2d, #28a745);
+  background: linear-gradient(90deg, #0a8f2d, var(--color-credit));
 }
 
 /* ===== Date Range Picker ===== */
@@ -162,18 +215,18 @@
 
 .custom-datepicker {
   padding: 6px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   font-size: 14px;
   color: #333;
-  background: #fafafa;
+  background: var(--color-light-bg);
   box-shadow: 0 2px 6px rgba(0,0,0,0.05);
   transition: border-color 0.2s ease;
 }
 
 .custom-datepicker:focus {
   outline: none;
-  border-color: #6c63ff;
+  border-color: var(--color-primary);
 }
 
 .reset-btn {
@@ -198,4 +251,50 @@
   align-items: center;
   margin-bottom: 15px;
   flex-wrap: wrap; /* keeps it responsive on small screens */
+}
+
+/* ===== Recurring Payments Table ===== */
+.insights-card table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.insights-card table thead th {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 2px solid var(--color-primary);
+}
+
+.insights-card table tbody tr:nth-child(even) {
+  background: var(--color-light-bg);
+}
+
+.insights-card table tbody tr:hover {
+  background: #f0f6ff;
+}
+
+.insights-card table td {
+  padding: 8px;
+}
+
+.recurring-toggle {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  outline: none;
+  transition: all 0.3s ease;
+  background: linear-gradient(90deg, #0642a3, #065de8);
+  color: #ffffff;
+}
+
+.recurring-toggle:hover {
+  opacity: 0.85;
+}
+
+.recurring-toggle.active {
+  background: linear-gradient(90deg, #065de8, #0642a3);
+  box-shadow: 0 0 8px rgba(6, 93, 232, 0.5);
 }

@@ -453,7 +453,7 @@ export default function InsightsTab({ transactions = [] }) {
           {recurringPayments.length > 10 && (
             <button
               onClick={() => setShowAllRecurring(!showAllRecurring)}
-              className={`dropdown-pink ${showAllRecurring ? "toggle-btn" : "toggle-btn"}`}
+              className={`recurring-toggle`}
             >
               {showAllRecurring ? "Show Less" : `Show All (${recurringPayments.length})`}
             </button>
