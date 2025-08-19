@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import PdfUpload from "./PdfUpload";
-import "./App.css"; // Keep global styles
 import "./style/home.css"; // Page-specific styles
 
 export default function Home() {
@@ -12,9 +11,16 @@ export default function Home() {
   };
 
   return (
-    <div className="app-container">
-      <h1 className="app-title">Bank Statement Analyzer</h1>
-      <PdfUpload onUploadComplete={handleUploadComplete} />
+    <div className="home-container">
+      <div className="home-content">
+        <h1 className="home-title">Bank Statement Analyzer</h1>
+        <p className="home-subtitle">
+          Turn your PDF or TXT bank statements into clear, usable data.
+          <br />
+          Simply upload your file to get started.
+        </p>
+        <PdfUpload onUploadComplete={handleUploadComplete} />
+      </div>
     </div>
   );
 }

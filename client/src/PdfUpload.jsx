@@ -96,9 +96,12 @@ export default function PdfUpload({ onUploadComplete }) {
         onDragLeave={() => setDragOver(false)}
         onDrop={handleDrop}
       >
-        <CloudUpload size={50} className="upload-icon" />
-        <p className="upload-text">
-          {file ? file.name : "Click or drag & drop your bank statement here"}
+        <CloudUpload size={48} className="upload-icon" />
+        <p className="upload-text-primary">
+          {file ? file.name : "Click or drag & drop your file"}
+        </p>
+        <p className="upload-text-secondary">
+          Supported formats: PDF, TXT
         </p>
         <input
           ref={fileInputRef}
@@ -116,21 +119,21 @@ export default function PdfUpload({ onUploadComplete }) {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={handleUpload}
-          disabled={loading}
-          className="btn-primary"
+          onClick={handleReset}
+          className={`btn-secondary ${file ? "btn-danger" : ""}`}
         >
-          {loading ? "Processing..." : "Upload & Parse PDF"}
+          <RefreshCcw size={16} />
+          Clear
         </motion.button>
 
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={handleReset}
-          className="btn-secondary"
+          onClick={handleUpload}
+          disabled={!file || loading}
+          className="btn-primary"
         >
-          <RefreshCcw size={16} />
-          Reset
+          {loading ? "Processing..." : "Upload"}
         </motion.button>
       </div>
     </motion.div>
