@@ -46,9 +46,12 @@
   box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
-
 .insights-header {
-  margin-bottom: 14px;
+  display: flex;
+  justify-content: space-between; /* left = calendar, right = toggle */
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap; /* ensures responsiveness */
   font-weight: 600;
   color: #222;
 }
@@ -67,14 +70,16 @@
     height: 260px;
   }
 }
-/* Wrapper for dropdowns */
+
+/* ===== Controls ===== */
 .insights-control {
   display: flex;
+  align-items: center;
   justify-content: flex-end;
   margin-bottom: 8px;
 }
 
-/* Base dropdown style */
+/* ===== Dropdowns ===== */
 .dropdown {
   padding: 8px 14px;
   border-radius: 8px;
@@ -86,100 +91,60 @@
   outline: none;
 }
 
-.dropdown-option {
-  color: #000; /* Options should stay black so they're readable */
-}
-
-/* Color themes for dropdowns */
-.dropdown-purple {
-  background: linear-gradient(90deg, #0642a3, #065de8);
-}
-
-.dropdown-pink {
-  background: linear-gradient(90deg, #0642a3, #065de8);
-}
-
-/* Hover effect for dropdowns */
 .dropdown:hover {
   opacity: 0.85;
 }
 
-/* Recurring Payments button base */
+.dropdown-option {
+  color: #000; /* Options should stay black so they're readable */
+}
+
+.dropdown-purple,
+.dropdown-pink {
+  background: linear-gradient(90deg, #0642a3, #065de8);
+}
+
+/* ===== Toggle Buttons ===== */
 .toggle-btn {
-  padding: 8px 14px;
-  border-radius: 6px;
-  color: #fff;
-  font-weight: 500;
-  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 8px;
   border: none;
-  transition: all 0.3s ease;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.3s, color 0.3s, transform 0.2s ease;
+  color: #fff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
 .toggle-btn:hover {
+  opacity: 0.9;
   transform: scale(1.05);
 }
 
-/* Button colors */
-.toggle-btn-green {
-  background: linear-gradient(90deg, #0642a3, #065de8);
+.toggle-btn.debit-mode {
+  background: linear-gradient(90deg, #a30606, #e80606);
 }
 
-.toggle-btn-red {
-  background: linear-gradient(90deg, #0642a3, #065de8);
+.toggle-btn.credit-mode {
+  background: linear-gradient(90deg, #0a8f2d, #28a745);
 }
 
-/* Insights header alignment */
-.insights-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-/* Date range row aligned to right */
+/* ===== Date Range Picker ===== */
 .insights-date-row {
   display: flex;
+  align-items: center;
+  gap: 10px;
   justify-content: flex-end;
   margin-bottom: 15px;
 }
 
+.date-picker-container,
 .date-picker-wrapper {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-/* Sleek date picker design */
-.custom-datepicker {
-  padding: 6px 10px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 14px;
-  color: #333;
-  background: #fafafa;
-  transition: border-color 0.2s ease;
-}
-
-.custom-datepicker:focus {
-  outline: none;
-  border-color: #6c63ff;
-}
-
-/* Reset button style */
-.reset-btn {
-  padding: 6px 12px;
-  background: #ff4d4f;
-  border: none;
-  color: white;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
-}
-
-.reset-btn:hover {
-  background: #d9363e;
-}
 .datepicker-icon-wrapper {
   position: relative;
   display: inline-block;
@@ -197,34 +162,40 @@
 
 .custom-datepicker {
   padding: 6px 10px;
-  border-radius: 8px;
   border: 1px solid #ddd;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  border-radius: 8px;
   font-size: 14px;
+  color: #333;
+  background: #fafafa;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  transition: border-color 0.2s ease;
 }
-
 
 .custom-datepicker:focus {
   outline: none;
   border-color: #6c63ff;
 }
 
-
-.toggle-btn {
-  padding: 8px 16px;
-  border-radius: 20px;
+.reset-btn {
+  padding: 6px 12px;
+  background: #ff4d4f;
   border: none;
+  color: white;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s, color 0.3s;
-  font-weight: 500;
+  font-size: 14px;
+  transition: background 0.2s ease;
 }
 
-.toggle-btn.active-mode {
-  color: #fff;
-  background: #6c63ff; /* DEBIT color */
+.reset-btn:hover {
+  background: #d9363e;
 }
 
-.toggle-btn.credit-mode {
-  background: #28a745; /* CREDIT color */
-  color: #fff;
+/* ===== Toolbar ===== */
+.insights-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  flex-wrap: wrap; /* keeps it responsive on small screens */
 }

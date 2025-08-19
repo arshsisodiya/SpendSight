@@ -15,7 +15,15 @@ import {
 } from "chart.js";
 import { MatrixController, MatrixElement } from "chartjs-chart-matrix";
 import "chartjs-adapter-date-fns";
-import { parseISO, startOfWeek, format, getDay, isAfter, isBefore } from "date-fns";
+import {
+  parseISO,
+  startOfWeek,
+  format,
+  getDay,
+  isAfter,
+  isBefore,
+  isValid,
+} from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "./style/InsightsTab.css";
@@ -62,6 +70,7 @@ function aggregateTopN(transactions, txnType, topN = 8) {
   transactions.forEach((t) => {
     const amt = Number(t.Amount || 0);
     if (!amt || isNaN(amt)) return;
+
     const type = (t.Type || "").toUpperCase();
     if (txnType === "DEBIT" && type !== "DEBIT") return;
     if (txnType === "CREDIT" && type !== "CREDIT") return;
@@ -99,21 +108,22 @@ function aggregateSpending(transactions, view = "daily") {
     if (t.Date instanceof Date) txnDate = t.Date;
     else if (typeof t.Date === "string") {
       const parsed = parseISO(t.Date);
-      if (isNaN(parsed)) return;
+      if (!isValid(parsed)) return;
       txnDate = parsed;
     } else return;
 
-    let dateKey = null;
+    let dateKey;
     if (view === "daily") dateKey = format(txnDate, "yyyy-MMM-dd");
-    else if (view === "weekly") {
-      const weekStart = startOfWeek(txnDate, { weekStartsOn: 1 });
-      dateKey = format(weekStart, "yyyy-MMM-dd");
-    } else if (view === "monthly") dateKey = format(txnDate, "yyyy-MMM");
+    else if (view === "weekly")
+      dateKey = format(startOfWeek(txnDate, { weekStartsOn: 1 }), "yyyy-MMM-dd");
+    else if (view === "monthly") dateKey = format(txnDate, "yyyy-MMM");
 
     map[dateKey] = (map[dateKey] || 0) + amt;
   });
 
-  const sortedKeys = Object.keys(map).sort((a, b) => new Date(a) - new Date(b));
+  const sortedKeys = Object.keys(map).sort(
+    (a, b) => new Date(a) - new Date(b)
+  );
   return { labels: sortedKeys, data: sortedKeys.map((k) => map[k]) };
 }
 
@@ -121,7 +131,6 @@ function aggregateHeatmap(transactions, view = "weekly") {
   const heatmapData = {};
 
   transactions.forEach((t) => {
-    const type = (t.Type || "").toUpperCase();
     const amt = Number(t.Amount || 0);
     if (!amt || isNaN(amt)) return;
 
@@ -129,19 +138,17 @@ function aggregateHeatmap(transactions, view = "weekly") {
     if (t.Date instanceof Date) txnDate = t.Date;
     else if (typeof t.Date === "string") {
       const parsed = parseISO(t.Date);
-      if (isNaN(parsed)) return;
+      if (!isValid(parsed)) return;
       txnDate = parsed;
     } else return;
 
-    let weekKey = format(startOfWeek(txnDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
+    let periodKey = format(startOfWeek(txnDate, { weekStartsOn: 1 }), "yyyy-MM-dd");
+    if (view === "monthly") periodKey = format(txnDate, "yyyy-MMM");
+    else if (view === "daily") periodKey = format(txnDate, "yyyy-MMM-dd");
 
-    if (view === "monthly") weekKey = format(txnDate, "yyyy-MMM");
-    else if (view === "daily") weekKey = format(txnDate, "yyyy-MMM-dd");
-
-    const key = `${weekKey}-${getDay(txnDate)}`;
-
+    const key = `${periodKey}-${getDay(txnDate)}`;
     heatmapData[key] = {
-      x: weekKey,
+      x: periodKey,
       y: getDay(txnDate),
       v: (heatmapData[key]?.v || 0) + amt,
     };
@@ -156,9 +163,13 @@ function aggregateRecurring(transactions) {
     const amt = Number(t.Amount || 0);
     const type = (t.Type || "").toUpperCase();
     if (type !== "DEBIT" || !amt) return;
+
     const user = sanitizeDetails(t.Details) || "Unknown";
-    const key = `${user}||${Number(amt).toFixed(2)}`;
-    recurringMap[key] = recurringMap[key] || { user, amount: Number(amt), dates: [] };
+    const key = `${user}||${amt.toFixed(2)}`;
+
+    if (!recurringMap[key]) {
+      recurringMap[key] = { user, amount: amt, dates: [] };
+    }
     recurringMap[key].dates.push(t.Date ? new Date(t.Date) : null);
   });
 
@@ -191,8 +202,8 @@ export default function InsightsTab({ transactions = [] }) {
   const filteredTransactions = useMemo(() => {
     if (!startDate && !endDate) return transactions;
     return transactions.filter((t) => {
-      let txnDate = t.Date instanceof Date ? t.Date : parseISO(t.Date);
-      if (isNaN(txnDate)) return false;
+      const txnDate = t.Date instanceof Date ? t.Date : parseISO(t.Date);
+      if (!isValid(txnDate)) return false;
       if (startDate && isBefore(txnDate, startDate)) return false;
       if (endDate && isAfter(txnDate, endDate)) return false;
       return true;
@@ -211,12 +222,29 @@ export default function InsightsTab({ transactions = [] }) {
       heatmapView
     );
 
-    const colors = agg.labels.map((_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]);
+    const colors = agg.labels.map(
+      (_, i) => DEFAULT_COLORS[i % DEFAULT_COLORS.length]
+    );
 
     return {
       chartData: {
-        pie: { labels: agg.labels, datasets: [{ data: agg.data, backgroundColor: colors, borderWidth: 0 }] },
-        bar: { labels: agg.labels, datasets: [{ label: "Amount (₹)",  data: agg.data, backgroundColor: colors.map(c => c + "aa"), borderRadius: 8  }] },
+        pie: {
+          labels: agg.labels,
+          datasets: [
+            { data: agg.data, backgroundColor: colors, borderWidth: 0 },
+          ],
+        },
+        bar: {
+          labels: agg.labels,
+          datasets: [
+            {
+              label: "Amount (₹)",
+              data: agg.data,
+              backgroundColor: colors.map((c) => c + "aa"),
+              borderRadius: 8,
+            },
+          ],
+        },
       },
       spendingTrend: {
         labels: spendingAgg.labels,
@@ -224,9 +252,9 @@ export default function InsightsTab({ transactions = [] }) {
           {
             label: `${chartMode} Spending (₹)`,
             data: spendingAgg.data,
-            fill: false,
             borderColor: "#ff6384",
             backgroundColor: "#ff6384",
+            fill: false,
             tension: 0.3,
             pointRadius: 4,
             pointHoverRadius: 6,
@@ -239,22 +267,17 @@ export default function InsightsTab({ transactions = [] }) {
   }, [filteredTransactions, trendView, heatmapView, chartMode]);
 
   const sortedRecurring = useMemo(() => {
-    if (!recurringPayments || recurringPayments.length === 0) return [];
-    const arr = [...recurringPayments];
-    arr.sort((a, b) =>
+    if (!recurringPayments?.length) return [];
+    return [...recurringPayments].sort((a, b) =>
       countSortDir === "asc" ? a.count - b.count : b.count - a.count
     );
-    return arr;
   }, [recurringPayments, countSortDir]);
 
   const displayedRecurring = showAllRecurring
     ? sortedRecurring
     : sortedRecurring.slice(0, 10);
 
-  const toggleCountSort = () => setCountSortDir(prev => prev === "desc" ? "asc" : "desc");
-  const toggleChartMode = () => setChartMode(prev => prev === "DEBIT" ? "CREDIT" : "DEBIT");
-
-  if (!transactions || transactions.length === 0) {
+  if (!transactions?.length) {
     return (
       <div className="insights-card" style={{ padding: 20, background: "#fff", borderRadius: 12 }}>
         <p>No data available for insights. Upload a statement to see charts.</p>
@@ -262,9 +285,23 @@ export default function InsightsTab({ transactions = [] }) {
     );
   }
 
-  const pieOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom" }, title: { display: true, text: `${chartMode} Top Payees` } } };
-  const barOptions = { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: `${chartMode} Top Payees` } } };
-  const lineOptions = { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: `${chartMode} Spending Trend (${trendView})` } } };
+  const pieOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { position: "bottom" }, title: { display: true, text: `${chartMode} Top Payees` } },
+  };
+
+  const barOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { title: { display: true, text: `${chartMode} Top Payees` } },
+  };
+
+  const lineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { title: { display: true, text: `${chartMode} Spending Trend (${trendView})` } },
+  };
 
   const heatmapOptions = {
     responsive: true,
@@ -294,10 +331,10 @@ export default function InsightsTab({ transactions = [] }) {
         label: `${chartMode} Heatmap`,
         data: heatmapData,
         backgroundColor: (ctx) => {
-          const dataPoint = ctx.dataset.data[ctx.dataIndex];
-          if (!dataPoint || !dataPoint.v) return "rgba(200,200,200,0.2)";
+          const d = ctx.dataset.data[ctx.dataIndex];
+          if (!d?.v) return "rgba(200,200,200,0.2)";
           const max = Math.max(...heatmapData.map((d) => d.v));
-          const intensity = max ? dataPoint.v / max : 0;
+          const intensity = max ? d.v / max : 0;
           return `rgba(255, 99, 132, ${intensity})`;
         },
         width: () => 20,
@@ -310,23 +347,13 @@ export default function InsightsTab({ transactions = [] }) {
     <div style={{ background: "#fff", padding: 20, borderRadius: 12 }}>
       <h3>Data Insights & Visualization</h3>
 
-{/* Toggle Debit/Credit - Single Button */}
-<div style={{ marginBottom: 12 }}>
-  <button
-    onClick={() => setChartMode(prev => prev === "DEBIT" ? "CREDIT" : "DEBIT")}
-    className={`toggle-btn active-mode`} // always active, visually shows current mode
-  >
-    {chartMode === "DEBIT" ? "Showing Debit" : "Showing Credit"}
-  </button>
-</div>
-
-      {/* Date Picker */}
-      <div className="insights-date-row">
-        <div className="date-picker-wrapper">
+      {/* Date Picker + Toggle */}
+      <div className="insights-header">
+        <div className="date-picker-container">
           <div className="datepicker-icon-wrapper">
             <DatePicker
               selected={startDate}
-              onChange={(date) => setStartDate(date)}
+              onChange={setStartDate}
               selectsStart
               startDate={startDate}
               endDate={endDate}
@@ -336,10 +363,11 @@ export default function InsightsTab({ transactions = [] }) {
             />
             <span className="calendar-icon">📅</span>
           </div>
+
           <div className="datepicker-icon-wrapper">
             <DatePicker
               selected={endDate}
-              onChange={(date) => setEndDate(date)}
+              onChange={setEndDate}
               selectsEnd
               startDate={startDate}
               endDate={endDate}
@@ -349,11 +377,21 @@ export default function InsightsTab({ transactions = [] }) {
             />
             <span className="calendar-icon">📅</span>
           </div>
+
           {(startDate || endDate) && (
             <button className="reset-btn" onClick={handleResetDates}>
               Reset
             </button>
           )}
+        </div>
+
+        <div className="insights-control">
+          <button
+            onClick={() => setChartMode((prev) => (prev === "DEBIT" ? "CREDIT" : "DEBIT"))}
+            className={`toggle-btn ${chartMode === "DEBIT" ? "debit-mode" : "credit-mode"}`}
+          >
+            {chartMode === "DEBIT" ? "Showing Debit" : "Showing Credit"}
+          </button>
         </div>
       </div>
 
@@ -370,27 +408,19 @@ export default function InsightsTab({ transactions = [] }) {
       {/* Spending Trend */}
       <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
         <div className="insights-control">
-          <select
-            value={trendView}
-            onChange={(e) => setTrendView(e.target.value)}
-            className="dropdown dropdown-purple"
-          >
+          <select value={trendView} onChange={(e) => setTrendView(e.target.value)} className="dropdown dropdown-pink">
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
           </select>
         </div>
-        <Line data={spendingTrend} options={lineOptions}  />
+        <Line data={spendingTrend} options={lineOptions} />
       </div>
 
       {/* Heatmap */}
       <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
         <div className="insights-control">
-          <select
-            value={heatmapView}
-            onChange={(e) => setHeatmapView(e.target.value)}
-            className="dropdown dropdown-pink"
-          >
+          <select value={heatmapView} onChange={(e) => setHeatmapView(e.target.value)} className="dropdown dropdown-pink">
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="monthly">Monthly</option>
@@ -403,33 +433,28 @@ export default function InsightsTab({ transactions = [] }) {
       <div className="insights-card" style={{ marginTop: 20 }}>
         <div className="insights-header">
           <h4>Recurring Payments</h4>
-          <div>
-            {recurringPayments.length > 10 && (
-              <button
-                onClick={() => setShowAllRecurring(!showAllRecurring)}
-                className={`toggle-btn ${showAllRecurring ? "toggle-btn-red" : "toggle-btn-green"}`}
-              >
-                {showAllRecurring ? "Show Less" : `Show All (${recurringPayments.length})`}
-              </button>
-            )}
-          </div>
+          {recurringPayments.length > 10 && (
+            <button
+              onClick={() => setShowAllRecurring(!showAllRecurring)}
+              className={`dropdown-pink ${showAllRecurring ? "toggle-btn" : "toggle-btn"}`}
+            >
+              {showAllRecurring ? "Show Less" : `Show All (${recurringPayments.length})`}
+            </button>
+          )}
         </div>
         {recurringPayments.length ? (
           <div style={{ overflowX: "auto", marginTop: 8 }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", marginTop: 8 }}>
+            <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr style={{ textAlign: "left", borderBottom: "2px solid #12d72fff" }}>
                   <th style={{ padding: 8 }}>Details</th>
                   <th style={{ padding: 8 }}>Amount (₹)</th>
                   <th
-                    style={{ padding: 8, cursor: "pointer", userSelect: "none" }}
-                    onClick={toggleCountSort}
+                    style={{ padding: 8, cursor: "pointer" }}
+                    onClick={() => setCountSortDir((prev) => (prev === "desc" ? "asc" : "desc"))}
                     title="Click to sort by count"
                   >
-                    Count{" "}
-                    <span style={{ fontSize: 12 }}>
-                      {countSortDir === "desc" ? "▼" : "▲"}
-                    </span>
+                    Count <span style={{ fontSize: 12 }}>{countSortDir === "desc" ? "▼" : "▲"}</span>
                   </th>
                   <th style={{ padding: 8 }}>Total (₹)</th>
                 </tr>
