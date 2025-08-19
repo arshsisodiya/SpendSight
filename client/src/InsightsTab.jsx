@@ -360,6 +360,7 @@ export default function InsightsTab({ transactions = [] }) {
               placeholderText="Start Date"
               dateFormat="yyyy-MM-dd"
               className="custom-datepicker"
+              maxDate={endDate}   // ✅ Prevents picking a start date after end date
             />
             <span className="calendar-icon">📅</span>
           </div>
@@ -374,6 +375,7 @@ export default function InsightsTab({ transactions = [] }) {
               placeholderText="End Date"
               dateFormat="yyyy-MM-dd"
               className="custom-datepicker"
+              minDate={startDate} // ✅ Prevents picking an end date before start date
             />
             <span className="calendar-icon">📅</span>
           </div>
@@ -384,6 +386,7 @@ export default function InsightsTab({ transactions = [] }) {
             </button>
           )}
         </div>
+
 
         <div className="insights-control">
           <button
