@@ -11,19 +11,23 @@ export default function PdfUpload({ onUploadComplete }) {
   const [errorMsg, setErrorMsg] = useState("");
   const fileInputRef = useRef(null);
 
+  // Use environment variable, fallback to localhost for local dev
+  const BACKEND_URL =
+    process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
   const handleUpload = async () => {
     if (!file) {
       setErrorMsg("Please select a PDF or TXT file before uploading.");
       return;
     }
-    setErrorMsg(""); // clear error if file exists
+    setErrorMsg(""); // clear previous error
 
     const formData = new FormData();
     formData.append("pdf", file);
 
     setLoading(true);
     try {
-      const res = await axios.post("http://localhost:5000/upload", formData, {
+      const res = await axios.post(`${BACKEND_URL}/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -43,7 +47,8 @@ export default function PdfUpload({ onUploadComplete }) {
         const amount =
           typeof t.Amount === "number"
             ? t.Amount
-            : parseFloat(String(t.Amount || "0").replace(/[^0-9.-]+/g, "")) || 0;
+            : parseFloat(String(t.Amount || "0").replace(/[^0-9.-]+/g, "")) ||
+              0;
 
         return { ...t, Date: dateObj, Amount: amount };
       });
@@ -74,9 +79,7 @@ export default function PdfUpload({ onUploadComplete }) {
   const handleReset = () => {
     setFile(null);
     setErrorMsg("");
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ""; // clear actual input
-    }
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   return (
@@ -100,9 +103,7 @@ export default function PdfUpload({ onUploadComplete }) {
         <p className="upload-text-primary">
           {file ? file.name : "Click or drag & drop your file"}
         </p>
-        <p className="upload-text-secondary">
-          Supported formats: PDF, TXT
-        </p>
+        <p className="upload-text-secondary">Supported formats: PDF, TXT</p>
         <input
           ref={fileInputRef}
           id="pdf-file"
