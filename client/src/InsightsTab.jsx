@@ -410,24 +410,38 @@ export default function InsightsTab({ transactions = [] }) {
 
       {/* Spending Trend */}
       <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
-        <div className="insights-control">
-          <select value={trendView} onChange={(e) => setTrendView(e.target.value)} className="dropdown dropdown-pink">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
+        <div className="insights-header">
+          <h4>{chartMode} Spending Trend</h4>
+          <div className="insights-control">
+            <select
+              value={trendView}
+              onChange={(e) => setTrendView(e.target.value)}
+              className="dropdown dropdown-pink"
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
         </div>
-        <Line data={spendingTrend} options={lineOptions} />
+        <Line data={spendingTrend} options={{ responsive: true, maintainAspectRatio: false }} />
       </div>
 
       {/* Heatmap */}
       <div className="insights-card" style={{ marginTop: 20, height: 340 }}>
-        <div className="insights-control">
-          <select value={heatmapView} onChange={(e) => setHeatmapView(e.target.value)} className="dropdown dropdown-pink">
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="monthly">Monthly</option>
-          </select>
+        <div className="insights-header">
+          <h4>{chartMode} Spending Heatmap</h4>
+          <div className="insights-control">
+            <select
+              value={heatmapView}
+              onChange={(e) => setHeatmapView(e.target.value)}
+              className="dropdown dropdown-pink"
+            >
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="monthly">Monthly</option>
+            </select>
+          </div>
         </div>
         <Bar type="matrix" data={heatmapChart} options={heatmapOptions} />
       </div>
