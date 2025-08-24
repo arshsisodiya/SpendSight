@@ -7,11 +7,11 @@ import "./style/PdfUpload.css";
 export default function PdfUpload({ onUploadComplete }) {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [dragOver, setDragOver] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const fileInputRef = useRef(null);
 
-  // Use environment variable, fallback to localhost for local dev
   const BACKEND_URL =
     process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
@@ -20,7 +20,8 @@ export default function PdfUpload({ onUploadComplete }) {
       setErrorMsg("Please select a PDF or TXT file before uploading.");
       return;
     }
-    setErrorMsg(""); // clear previous error
+    setErrorMsg(""); 
+    setUploadProgress(0);
 
     const formData = new FormData();
     formData.append("pdf", file);
@@ -29,6 +30,12 @@ export default function PdfUpload({ onUploadComplete }) {
     try {
       const res = await axios.post(`${BACKEND_URL}/upload`, formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        onUploadProgress: (progressEvent) => {
+          const percent = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total
+          );
+          setUploadProgress(percent);
+        },
       });
 
       const raw = res.data.transactions || [];
@@ -59,6 +66,7 @@ export default function PdfUpload({ onUploadComplete }) {
       console.error(err);
     } finally {
       setLoading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -128,13 +136,27 @@ export default function PdfUpload({ onUploadComplete }) {
         </motion.button>
 
         <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          whileHover={{ scale: !loading ? 1.05 : 1 }}
+          whileTap={{ scale: !loading ? 0.95 : 1 }}
           onClick={handleUpload}
           disabled={!file || loading}
-          className="btn-primary"
+          className="btn-primary upload-progress-btn"
         >
-          {loading ? "Processing..." : "Upload"}
+          {loading ? (
+            <>
+              <div
+                className="progress-bar-fill"
+                style={{ width: `${uploadProgress}%` }}
+              />
+              <span className="progress-text">
+                {uploadProgress < 100
+                  ? `Uploading ${uploadProgress}%`
+                  : "Processing..."}
+              </span>
+            </>
+          ) : (
+            "Upload"
+          )}
         </motion.button>
       </div>
     </motion.div>

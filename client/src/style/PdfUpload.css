@@ -108,7 +108,7 @@
 }
 
 .btn-secondary {
-  background-color: #e2e8f0;
+  background-color: #f0e2e7;
   color: #475569;
 }
 
@@ -150,3 +150,63 @@
 .btn-danger:hover {
   background-color: #dc2626;
 }
+
+/* Make progress text match button font size (like Clear button) */
+.upload-progress-btn .progress-text {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: inherit;   /* 👈 match parent button font size */
+  font-weight: inherit; /* 👈 match font weight */
+}
+.upload-progress-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.25); /* faded overlay color */
+  transition: width 0.3s ease;
+}
+
+
+/* Optional: Add animated stripes */
+.progress-bar-fill {
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.25),
+    rgba(255, 255, 255, 0.25) 10px,
+    rgba(255, 255, 255, 0.35) 10px,
+    rgba(255, 255, 255, 0.35) 20px
+  );
+  animation: progress-stripes 1s linear infinite;
+}
+
+@keyframes progress-stripes {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 40px 0;
+  }
+}
+
+/* Make progress text match button font size (like Clear button) */
+.upload-progress-btn .progress-text {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: inherit;   /* 👈 match parent button font size */
+  font-weight: inherit; /* 👈 match font weight */
+}
+
