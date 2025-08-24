@@ -8,170 +8,96 @@
   --color-border: #ddd;
 }
 
-/* ===== Tabs ===== */
-.tab-buttons {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
+/* ===== Main Container ===== */
+.insights-container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(20, 20, 40, 0.04);
 }
 
-.active-tab {
-  background: var(--color-primary);
-  color: #fff;
-  border-color: var(--color-primary);
-  box-shadow: 0 3px 6px rgba(0, 123, 255, 0.3);
-}
-
-/* ===== Empty State ===== */
-.empty-state {
-  margin-top: 40px;
-  padding: 24px;
-  border-radius: 14px;
-  background: #fff;
+.insights-container h3 {
   text-align: center;
-  box-shadow: 0 8px 20px rgba(20, 20, 40, 0.05);
-  color: #555;
-  font-size: 1rem;
-}
-.empty-state::before {
-  content: "📊";
-  display: block;
-  font-size: 2rem;
-  margin-bottom: 8px;
+  margin-bottom: 24px;
+  font-size: 1.5rem;
+  color: #1e293b;
 }
 
-/* ===== Insights Grid ===== */
-.insights-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-}
-
+/* ===== General Card Styling ===== */
 .insights-card {
   background: #fff;
-  padding: 20px;
+  padding: 16px;
   border-radius: 14px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: 20px;
 }
 
-.insights-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-}
-
-.insights-card h4 {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #222;
-  margin-bottom: 10px;
-}
-
+/* ===== Header & Controls ===== */
 .insights-header {
   display: flex;
-  justify-content: space-between; /* left = calendar, right = toggle */
+  justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap; /* Allows wrapping on medium screens */
+  gap: 16px; /* Provides space between wrapped items */
   margin-bottom: 16px;
-  flex-wrap: wrap; /* ensures responsiveness */
-  font-weight: 600;
-  color: #222;
 }
 
-.insights-chart,
-.chart-container {
-  width: 100%;
-  height: clamp(240px, 30vh, 360px);
+.date-picker-container {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap; /* Allow date pickers to wrap if needed */
+  gap: 8px;
+}
+
+.datepicker-icon-wrapper {
   position: relative;
 }
 
-/* ===== Responsive Layout ===== */
-@media (max-width: 768px) {
-  .insights-grid {
-    grid-template-columns: 1fr;
-  }
-  .insights-chart,
-  .chart-container {
-    height: 260px;
-  }
+.calendar-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 14px;
+  color: #666;
 }
 
-/* ===== Controls ===== */
-.insights-control {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  margin-bottom: 8px;
-}
-
-/* ===== Dropdowns (robust cross-browser) ===== */
-.dropdown {
-  display: inline-block;
-  min-width: 15px;
-  min-height: 36px;
-  padding: 8px 36px 8px 14px; /* room for arrow on the right */
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  border: none;
-  outline: none;
-  line-height: 1.2;
-  transition: opacity 0.2s ease;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-
-  /* Two background layers:
-     1) SVG arrow (top layer)
-     2) Gradient (bottom layer) */
-  background-repeat: no-repeat, no-repeat;
-  background-position: right 12px center, 0 0;
-  background-size: 12px, 100% 100%;
-}
-
-/* Gradient + white arrow for purple/pink variant */
-.dropdown.dropdown-pink{
-  color: #fff;
-  background-image:
-    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"),
-    linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
-}
-
-.dropdown:hover { opacity: 0.9; }
-
-.dropdown:focus {
-  box-shadow: 0 0 0 2px rgba(185, 87, 22, 0.25);
-}
-
-/* Force the opened menu (options list) to white with black text */
-.dropdown option {
-  background-color: #ffffff;
-  color: #000000;
-}
-
-/* (Optional) a light variant if you ever need it on white cards */
-.dropdown--light {
-  color: #222;
+.custom-datepicker {
+  padding: 8px 12px;
   border: 1px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 14px;
+  color: #333;
+  background: var(--color-light-bg);
+  width: 130px; /* Give a consistent base width */
 }
 
+.reset-btn {
+  padding: 8px 12px;
+  background: #ef4444;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.2s ease;
+}
 
-/* ===== Toggle Buttons ===== */
+.reset-btn:hover {
+  background: #dc2626;
+}
+
 .toggle-btn {
   padding: 8px 16px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
   font-weight: 500;
-  transition: background 0.3s, color 0.3s, transform 0.2s ease;
+  transition: all 0.3s ease;
   color: #fff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
-
-.toggle-btn:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
 }
 
 .toggle-btn.debit-mode {
@@ -182,119 +108,205 @@
   background: linear-gradient(90deg, #0a8f2d, var(--color-credit));
 }
 
-/* ===== Date Range Picker ===== */
-.insights-date-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-bottom: 15px;
+/* ===== Charts ===== */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
 }
 
-.date-picker-container,
-.date-picker-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.datepicker-icon-wrapper {
+/* NEW: Wrapper to make charts responsive */
+.chart-wrapper {
   position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10; /* Maintain a consistent aspect ratio */
+  min-height: 350px; /* Prevent it from becoming too small */
+}
+
+.chart-card {
+  margin-top: 20px;
+}
+
+/* ===== Improved Dropdown Select ===== */
+.dropdown {
+  /* Box Model & Sizing */
   display: inline-block;
-}
+  min-width: 120px; /* Provide a sensible minimum width */
+  padding: 10px 36px 10px 16px; /* Adjusted padding for better balance */
+  box-sizing: border-box; /* Ensures padding is included in the width */
 
-.calendar-icon {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none; /* so clicking still opens datepicker */
-  font-size: 14px;
-  color: #666;
-}
-
-.custom-datepicker {
-  padding: 6px 10px;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  font-size: 14px;
-  color: #333;
-  background: var(--color-light-bg);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-  transition: border-color 0.2s ease;
-}
-
-.custom-datepicker:focus {
-  outline: none;
-  border-color: var(--color-primary);
-}
-
-.reset-btn {
-  padding: 6px 12px;
-  background: #ff4d4f;
+  /* Appearance & Typography */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-color: var(--color-primary); /* Fallback background */
+  background-image:
+    /* 1. SVG Arrow */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23FFFFFF' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>"),
+    /* 2. Gradient */
+    linear-gradient(90deg, var(--color-primary), var(--color-primary-dark));
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px; /* Slightly larger arrow */
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 14px; /* Explicitly set font size */
+  line-height: 1.4;
+  
+  /* Borders & Shadows */
   border: none;
-  color: white;
-  border-radius: 6px;
+  border-radius: 10px; /* Softer corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+
+  /* Interactivity */
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s ease;
+  outline: none;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
-.reset-btn:hover {
-  background: #d9363e;
+/* Hover State: Makes the dropdown feel interactive */
+.dropdown:hover {
+  transform: scale(1.02); /* Slightly enlarges the element */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
-/* ===== Toolbar ===== */
-.insights-toolbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  flex-wrap: wrap; /* keeps it responsive on small screens */
+/* Focus State: Crucial for accessibility */
+.dropdown:focus {
+  box-shadow: 0 0 0 3px rgba(6, 93, 232, 0.4); /* Clear blue glow */
 }
+
+/* Styling for the <option> elements inside the dropdown */
+.dropdown option {
+  background-color: #ffffff;
+  color: #333333; /* Darker text for better contrast */
+  font-weight: 500;
+}
+
+
 
 /* ===== Recurring Payments Table ===== */
-.insights-card table {
+/* NEW: Class for the scrollable table container */
+/* ===== Improved Recurring Toggle Button ===== */
+.recurring-toggle {
+  /* Box Model & Sizing */
+  padding: 10px 16px; /* Increased vertical padding for a better feel */
+  box-sizing: border-box;
+
+  /* Appearance & Typography */
+  background: linear-gradient(90deg, #0642a3, #065de8);
+  color: #ffffff;
+  font-weight: 500;
+  font-size: 14px;
+
+  /* Borders & Shadows */
+  border: none;
+  border-radius: 10px; /* Softer corners for a modern look */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  
+  /* Interactivity */
+  cursor: pointer;
+  outline: none;
+  transition: transform 0.2s ease, box-shadow 0.3s ease; /* Smoother, more specific transitions */
+}
+
+/* Hover State: Provides clear visual feedback */
+.recurring-toggle:hover {
+  transform: scale(1.02); /* Slightly enlarges the button */
+  box-shadow: 0 4px 12px rgba(6, 66, 163, 0.2); /* Enhance shadow on hover */
+}
+
+/* Active State: For when the button is toggled on */
+.recurring-toggle.active {
+  background: linear-gradient(90deg, #065de8, #0642a3); /* Reversed gradient */
+  box-shadow: 0 0 8px rgba(6, 93, 232, 0.5); /* Glowing effect */
+}
+
+/* Focus State: Crucial for accessibility */
+.recurring-toggle:focus-visible {
+  box-shadow: 0 0 0 3px rgba(6, 93, 232, 0.4); /* Clear blue glow for keyboard navigation */
+}
+
+.table-responsive-wrapper {
+  overflow-x: auto;
   width: 100%;
+  margin-top: 8px;
+}
+
+.recurring-payments-table {
+  width: 100%;
+  min-width: 500px; /* Force scroll on small screens */
   border-collapse: collapse;
   font-size: 14px;
 }
 
-.insights-card table thead th {
-  padding: 8px;
+.recurring-payments-table th,
+.recurring-payments-table td {
+  padding: 10px 8px;
   text-align: left;
+  white-space: nowrap; /* Prevent text wrapping in cells */
+}
+
+.recurring-payments-table thead th {
   border-bottom: 2px solid var(--color-primary);
+  font-weight: 600;
 }
 
-.insights-card table tbody tr:nth-child(even) {
-  background: var(--color-light-bg);
+.recurring-payments-table tbody tr {
+  border-bottom: 1px solid #eee;
 }
 
-.insights-card table tbody tr:hover {
-  background: #f0f6ff;
+.recurring-payments-table tbody tr:last-child {
+  border-bottom: none;
 }
 
-.insights-card table td {
-  padding: 8px;
+.recurring-payments-table tbody tr:hover {
+  background-color: #f9fafb;
 }
 
-.recurring-toggle {
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
+.sortable-header {
   cursor: pointer;
-  border: none;
-  outline: none;
-  transition: all 0.3s ease;
-  background: linear-gradient(90deg, #0642a3, #065de8);
-  color: #ffffff;
 }
 
-.recurring-toggle:hover {
-  opacity: 0.85;
+/* ===== Responsive Media Queries ===== */
+
+/* For Tablets */
+@media (max-width: 768px) {
+  .insights-container {
+    padding: 16px;
+  }
+
+  .insights-container h3 {
+    font-size: 1.3rem;
+  }
+
+  .insights-header {
+    flex-direction: column; /* Stack header items */
+    align-items: stretch; /* Make items full width */
+  }
+
+  .date-picker-container {
+    justify-content: center; /* Center date pickers */
+  }
+
+  .toggle-btn {
+    width: 100%;
+    text-align: center;
+  }
 }
 
-.recurring-toggle.active {
-  background: linear-gradient(90deg, #065de8, #0642a3);
-  box-shadow: 0 0 8px rgba(6, 93, 232, 0.5);
+/* For Mobile Phones */
+@media (max-width: 480px) {
+  .insights-container {
+    padding: 12px;
+  }
+
+  .date-picker-container {
+    flex-direction: column; /* Stack date pickers vertically */
+    align-items: stretch;
+  }
+
+  .custom-datepicker {
+    width: 100%; /* Make date pickers full width */
+    text-align: center;
+  }
 }
