@@ -1,4 +1,4 @@
-/* ===== PDF Upload Component Styles ===== */
+/* ===== PDF Upload Component Styles (Cleaned & Improved) ===== */
 .pdf-upload-container {
   display: flex;
   flex-direction: column;
@@ -7,6 +7,8 @@
   width: 100%;
 }
 
+/* ... (keep all previous styles) ... */
+
 .upload-box {
   width: 100%;
   padding: 2.5rem;
@@ -14,15 +16,17 @@
   border-radius: 12px;
   text-align: center;
   background-color: #ffffff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05), inset 0 0 15px rgba(0, 0, 0, 0.02); /* Added subtle inset shadow */
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
   cursor: pointer;
+  box-sizing: border-box; /* 👈 THE FIX: Prevents padding from overflowing the container */
 }
 
+/* Enhanced hover and drag-over states */
 .upload-box:hover {
   border-color: #3b82f6;
   transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08), inset 0 0 5px rgba(59, 130, 246, 0.1);
 }
 
 .drag-over {
@@ -32,11 +36,18 @@
   transform: scale(1.02);
 }
 
+/* Icon animation on hover */
 .upload-icon {
   color: #3b82f6;
   margin-bottom: 1rem;
+  transition: transform 0.3s ease; /* Add transition to the icon */
 }
 
+.upload-box:hover .upload-icon {
+  transform: scale(1.1); /* Make icon slightly bigger on hover */
+}
+
+/* ... (rest of the file remains the same) ... */
 .upload-text-primary {
   font-size: 1rem;
   color: #334155;
@@ -59,21 +70,7 @@
   width: 100%;
 }
 
-.btn-primary{
-  flex-grow: 1;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-.btn-secondary {
+.btn-primary, .btn-secondary {
   flex-grow: 1;
   padding: 0.75rem 1.5rem;
   border: none;
@@ -121,9 +118,10 @@
   color: #dc2626;
   font-size: 0.9rem;
   font-weight: 500;
-  margin-top: -0.5rem;
+  margin-top: 0; /* Adjusted from -0.5rem to prevent layout shifts */
   text-align: center;
 }
+
 
 /* ===== Responsive Adjustments ===== */
 @media (max-width: 768px) {
@@ -142,16 +140,22 @@
   }
 }
 
-.btn-danger {
+/* IMPROVEMENT: Made selector more specific to reliably override .btn-secondary */
+.btn-secondary.btn-danger {
   background-color: #f95151;
   color: white;
 }
 
-.btn-danger:hover {
+.btn-secondary.btn-danger:hover {
   background-color: #dc2626;
 }
 
-/* Make progress text match button font size (like Clear button) */
+/* ===== Progress Bar Styles ===== */
+.upload-progress-btn {
+  position: relative;
+  overflow: hidden;
+}
+
 .upload-progress-btn .progress-text {
   position: relative;
   z-index: 2;
@@ -162,23 +166,13 @@
   font-size: inherit;   /* 👈 match parent button font size */
   font-weight: inherit; /* 👈 match font weight */
 }
-.upload-progress-btn {
-  position: relative;
-  overflow: hidden;
-}
 
 .progress-bar-fill {
   position: absolute;
   left: 0;
   top: 0;
   height: 100%;
-  background: rgba(255, 255, 255, 0.25); /* faded overlay color */
   transition: width 0.3s ease;
-}
-
-
-/* Optional: Add animated stripes */
-.progress-bar-fill {
   background: repeating-linear-gradient(
     45deg,
     rgba(255, 255, 255, 0.25),
@@ -198,15 +192,4 @@
   }
 }
 
-/* Make progress text match button font size (like Clear button) */
-.upload-progress-btn .progress-text {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  font-size: inherit;   /* 👈 match parent button font size */
-  font-weight: inherit; /* 👈 match font weight */
-}
-
+/* DELETED: Removed a duplicated rule and a stray closing brace from the end of the original file. */

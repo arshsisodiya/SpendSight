@@ -122,8 +122,17 @@ export default function PdfUpload({ onUploadComplete }) {
         />
       </div>
 
-      {errorMsg && <p className="error-message">{errorMsg}</p>}
-
+           {errorMsg && (
+        <motion.p
+          className="error-message"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          transition={{ duration: 0.3 }}
+        >
+          {errorMsg}
+        </motion.p>
+      )}
       <div className="buttons-group">
         <motion.button
           whileHover={{ scale: 1.05 }}
