@@ -1,189 +1,263 @@
-/* ===== Transactions Table ===== */
-.transactions-table-wrapper {
-  padding: 16px;
-  border-radius: 12px;
-  background: #fff;
-  box-shadow: 0 6px 18px rgba(20,20,40,0.04);
-  overflow-x: auto;
+/* ===== Main Container ===== */
+.transactions-container {
+  padding: 16px; /* Padding for mobile */
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(20, 20, 40, 0.05);
 }
 
-.header-row {
+/* ===== Header Section ===== */
+.transactions-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
+  flex-direction: column; /* Stacked by default for mobile */
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.totals {
+.transactions-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1e293b;
+}
+
+.totals-summary {
   display: flex;
-  gap: 20px;
+  flex-wrap: wrap;
+  gap: 12px 24px; /* Row and column gap */
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.totals-summary strong {
+  color: #1e293b;
+}
+
+.total-spent { color: #ef4444; }
+.total-received { color: #22c55e; }
+
+/* ===== Filter & Export Controls ===== */
+.controls-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.filters-container {
+  display: grid;
+  grid-template-columns: 1fr; /* Single column for mobile */
+  gap: 12px;
+}
+
+.filter-control {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
   font-size: 14px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.totals .spent {
-  color: #d9534f;
+.filter-control:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
 }
 
-.totals .received {
-  color: #5cb85c;
-}
-
-.download-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  background: #4CAF50;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-}
-
-/* ===== Filters ===== */
-.filters-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.filter-input,
-.filter-select,
-.filter-datepicker {
-  padding: 6px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-}
-
-/* ===== Table Structure ===== */
-.table-wrapper {
+/* ===== Table Styling ===== */
+.table-responsive-wrapper {
   overflow-x: auto;
+  width: 100%;
 }
 
 .transactions-table {
   width: 100%;
+  min-width: 700px; /* Force scroll on smaller screens */
   border-collapse: collapse;
-  min-width: 700px;
-  background: white;
-  border-radius: 10px;
-  overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .transactions-table th,
 .transactions-table td {
   padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
   text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.transactions-table th {
-  background-color: #fafbfc;
+.transactions-table thead th {
+  background-color: #f8fafc;
   font-weight: 600;
-  font-size: 0.9rem;
-  color: #555;
+  font-size: 0.85rem;
+  color: #64748b;
   cursor: pointer;
+  user-select: none;
 }
 
-.transactions-table tr:hover {
-  background-color: #f9f9f9;
+.transactions-table tbody tr:hover {
+  background-color: #f9fafb;
 }
 
 .amount-cell {
   text-align: right;
+  font-weight: 500;
 }
+
+/* Utility classes to hide columns on specific screen sizes */
+.mobile-hidden { display: none; }
 
 /* ===== Pagination ===== */
-.pagination-controls {
-  margin-top: 16px;
+.pagination-footer {
   display: flex;
-  justify-content: center;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.page-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #ddd;
-  background: #fff;
-  cursor: pointer;
-  min-width: 32px;
-  transition: all 0.2s ease;
-}
-
-.page-btn.active {
-  border: 2px solid #2563eb;
-  background: #2563eb;
-  color: #fff;
-  font-weight: bold;
+  flex-direction: column; /* Stacked for mobile */
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
 }
 
 .pagination-info {
-  font-size: 12px;
-  margin-left: auto;
+  font-size: 0.85rem;
+  color: #64748b;
+  text-align: center;
 }
 
-/* ===== Responsive ===== */
-@media (max-width: 768px) {
-  .transactions-table {
-    font-size: 14px;
-  }
-  .filters-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-.export-dropdown-wrapper {
-  position: relative;
-  display: inline-block;
-  margin-left: auto; /* aligns right */
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap; /* Allow buttons to wrap */
+  justify-content: center;
+  gap: 6px;
 }
 
-.export-btn {
-  background-color: #4a90e2;
-  color: white;
-  border: none;
-  padding: 8px 16px;
-  border-radius: 6px;
+.page-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
   cursor: pointer;
   font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: background 0.2s;
+  transition: all 0.2s ease;
 }
 
-.export-btn:hover {
-  background-color: #357abd;
+.page-btn:hover:not(:disabled) {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
 }
 
-.caret {
-  font-size: 12px;
+.page-btn.active {
+  background-color: #3b82f6;
+  color: #ffffff;
+  border-color: #3b82f6;
 }
 
-.export-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: #fff;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  border-radius: 6px;
-  overflow: hidden;
-  margin-top: 6px;
-  z-index: 10;
-  min-width: 180px;
+.page-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
-.export-dropdown button {
-  width: 100%;
-  padding: 10px 14px;
-  background: none;
+/* ===== Export Button ===== */
+.export-btn {
+  background-color: #10b981;
+  color: white;
   border: none;
-  text-align: left;
+  padding: 10px 16px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  transition: background 0.2s;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+.export-btn:hover { background-color: #059669; }
+
+/* ===== Media Queries for Larger Screens ===== */
+
+/* For Tablets (e.g., iPad) */
+@media (min-width: 768px) {
+  .transactions-container {
+    padding: 24px;
+  }
+
+  .transactions-header {
+    flex-direction: row; /* Side-by-side layout */
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .controls-wrapper {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .filters-container {
+    grid-template-columns: repeat(4, 1fr); /* 4 columns for filters */
+  }
+
+  /* Show some columns that were hidden on mobile */
+  .tablet-visible {
+    display: table-cell;
+  }
+
+  .pagination-footer {
+    flex-direction: row; /* Side-by-side layout */
+    justify-content: space-between;
+  }
 }
 
-.export-dropdown button:hover {
-  background-color: #f0f0f0;
+/* For Desktops */
+@media (min-width: 1024px) {
+  /* Show all columns on desktop */
+  .desktop-visible {
+    display: table-cell;
+  }
 }
+
+/* ===== Additions for Date Picker Group ===== */
+
+.date-filter-group {
+  display: flex;
+  flex-wrap: wrap; /* Allows items to wrap on smaller screens */
+  align-items: center;
+  gap: 8px;
+  /* This will make the group take up more space in the grid on larger screens */
+  grid-column: span 2 / span 2;
+}
+
+.datepicker-icon-wrapper {
+  position: relative;
+  display: flex; /* Helps with alignment */
+  flex-grow: 1; /* Allows date pickers to grow */
+}
+
+.datepicker-icon-wrapper .filter-control {
+  width: 100%; /* Ensure datepicker input takes full width of its wrapper */
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.reset-btn {
+  padding: 10px 14px;
+  background: #ef4444; /* Red color */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.reset-btn:hover {
+  background-color: #dc2626; /* Darker red on hover */
+}
+
